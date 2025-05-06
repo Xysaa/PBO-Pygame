@@ -140,7 +140,7 @@ while run:
       round_over = False
       intro_count = 3
       fighter_1 = Fighter(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx,SCREEN_HEIGHT,is_bot=False)
-      fighter_2 = Fighter(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx,SCREEN_HEIGHT, is_bot=True)
+      fighter_2 = Fighter(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx,SCREEN_HEIGHT, is_bot=False)
 
   #event handler
   for event in pygame.event.get():
