@@ -120,7 +120,7 @@ class Fighter():
         if abs(self.rect.centerx - target.rect.centerx) < 100 and self.attack_cooldown == 0:
           self.attack(target)
           self.attack_type = 1  # Bisa diganti random untuk variasi
-      else:
+       else:
         # manual player 2
         if key[pygame.K_LEFT]:
           dx = -SPEED
@@ -239,5 +239,3 @@ class Fighter():
   def draw(self, surface):
     img = pygame.transform.flip(self.image, self.flip, False)
     surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
-  
-        
