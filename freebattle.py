@@ -31,11 +31,11 @@ ROUND_OVER_COOLDOWN = 2000
 #define fighter variables
 WARRIOR_SIZE = [48,48] 
 WARRIOR_SCALE = 3 
-WARRIOR_OFFSET = [10,5]
+WARRIOR_OFFSET = [10,-25]
 WARRIOR_DATA = [WARRIOR_SIZE[0], WARRIOR_SIZE[1],WARRIOR_SCALE, WARRIOR_OFFSET]
 WIZARD_SIZE = [48,48]
 WIZARD_SCALE = 3
-WIZARD_OFFSET = [10,5]
+WIZARD_OFFSET = [10,-25]
 WIZARD_DATA = [WIZARD_SIZE[0], WIZARD_SIZE[1],WIZARD_SCALE, WIZARD_OFFSET]
 
 #load music and sounds
@@ -84,8 +84,8 @@ def draw_health_bar(health, x, y):
 
 
 #create two instances of fighters
-fighter_1 = Fighter(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx, is_bot=False)
-fighter_2 = Fighter(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx, is_bot=False)
+fighter_1 = Fighter(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx,SCREEN_HEIGHT, is_bot=False)
+fighter_2 = Fighter(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx,SCREEN_HEIGHT, is_bot=False)
 
 #game loop
 run = True
@@ -139,8 +139,8 @@ while run:
     if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
       round_over = False
       intro_count = 3
-      fighter_1 = Fighter(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx,is_bot=False)
-      fighter_2 = Fighter(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx,is_bot=True)
+      fighter_1 = Fighter(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx,SCREEN_HEIGHT,is_bot=False)
+      fighter_2 = Fighter(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx,SCREEN_HEIGHT, is_bot=True)
 
   #event handler
   for event in pygame.event.get():
