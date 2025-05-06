@@ -1,7 +1,7 @@
 import pygame
 
 class Fighter():
-  def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound, is_bot=False):
+  def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound,screen_height, is_bot=False):
     self.player = player
     self.frame_width=data[0]
     self.frame_height = data[1]
@@ -14,6 +14,7 @@ class Fighter():
     self.image = self.animation_list[self.action][self.frame_index]
     self.update_time = pygame.time.get_ticks()
     self.rect = pygame.Rect((x, y, 80, 180))
+    self.rect.bottom=screen_height-110
     self.vel_y = 0
     self.running = False
     self.jump = False
