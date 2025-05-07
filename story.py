@@ -38,8 +38,16 @@ warrior_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior4r.png")
 wizard_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior4r.png").convert_alpha()
 
 # Fighter config
-WARRIOR_DATA = [48, 48, 3, [10, 5]]
-WIZARD_DATA = [48, 48, 3, [10, 5]]
+WARRIOR_SIZE = [48,48] 
+WARRIOR_SCALE = 3 
+WARRIOR_OFFSET = [10,-25]
+WARRIOR_DATA = [WARRIOR_SIZE[0], WARRIOR_SIZE[1],WARRIOR_SCALE, WARRIOR_OFFSET]
+WIZARD_SIZE = [48,48]
+WIZARD_SCALE = 3
+WIZARD_OFFSET = [10,-25]
+WIZARD_DATA = [WIZARD_SIZE[0], WIZARD_SIZE[1],WIZARD_SCALE, WIZARD_OFFSET]
+
+
 WARRIOR_ANIM = [10, 8, 1, 7, 7, 3, 7]
 WIZARD_ANIM = [10, 8, 1, 7, 7, 3, 7]
 
