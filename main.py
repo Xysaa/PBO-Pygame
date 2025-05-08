@@ -79,4 +79,4 @@ while running:
     pygame.display.flip()
 
 # Keluar dari Pygame
-
+pygame.quit()
