@@ -1,9 +1,7 @@
-# full_game.py
-
 import pygame
 import sys
 from pygame import mixer
-from fighter import Fighter
+from fighter import Warrior, Wizard
 
 # Init
 pygame.init()
@@ -14,7 +12,7 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Ascension of the Chosen")
 
-# Colors and Font
+# Colors & Fonts
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
@@ -22,7 +20,7 @@ FONT = pygame.font.Font("assets/fonts/turok.ttf", 32)
 COUNT_FONT = pygame.font.Font("assets/fonts/turok.ttf", 80)
 SCORE_FONT = pygame.font.Font("assets/fonts/turok.ttf", 30)
 
-# Music and Sound
+# Audio
 pygame.mixer.music.load("assets/audio/music.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1, 0.0, 5000)
@@ -37,21 +35,13 @@ victory_img = pygame.image.load("assets/images/icons/victory.png").convert_alpha
 warrior_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior4r.png").convert_alpha()
 wizard_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior4r.png").convert_alpha()
 
-# Fighter config
-WARRIOR_SIZE = [48,48] 
-WARRIOR_SCALE = 3 
-WARRIOR_OFFSET = [10,-25]
-WARRIOR_DATA = [WARRIOR_SIZE[0], WARRIOR_SIZE[1],WARRIOR_SCALE, WARRIOR_OFFSET]
-WIZARD_SIZE = [48,48]
-WIZARD_SCALE = 3
-WIZARD_OFFSET = [10,-25]
-WIZARD_DATA = [WIZARD_SIZE[0], WIZARD_SIZE[1],WIZARD_SCALE, WIZARD_OFFSET]
-
-
+# Config
+WARRIOR_DATA = [48, 48, 3, [10, -25]]
+WIZARD_DATA = [48, 48, 3, [10, -25]]
 WARRIOR_ANIM = [10, 8, 1, 7, 7, 3, 7]
 WIZARD_ANIM = [10, 8, 1, 7, 7, 3, 7]
 
-# UI Functions
+# UI funcs
 def draw_text(text, x, y, color=WHITE, font=FONT):
     img = font.render(text, True, color)
     screen.blit(img, (x, y))
@@ -81,7 +71,7 @@ def wait_for_key():
             if event.type == pygame.KEYDOWN:
                 return
 
-# Battle Function
+# Battle
 def start_battle():
     clock = pygame.time.Clock()
     FPS = 60
@@ -91,21 +81,18 @@ def start_battle():
     ROUND_OVER_COOLDOWN = 2000
     score = [0, 0]
 
-    fighter_1 = Fighter(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIM, sword_fx, SCREEN_HEIGHT, is_bot=False)
-    fighter_2 = Fighter(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIM, magic_fx, SCREEN_HEIGHT, is_bot=True)
+    fighter_1 = Warrior(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIM, sword_fx, SCREEN_HEIGHT, is_bot=False)
+    fighter_2 = Wizard(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIM, magic_fx, SCREEN_HEIGHT, is_bot=True)
 
     run = True
     while run:
         clock.tick(FPS)
         draw_bg()
-
-        # UI
         draw_health_bar(fighter_1.health, 20, 20)
         draw_health_bar(fighter_2.health, 580, 20)
-        draw_text("P1: " + str(score[0]), 20, 60, RED, SCORE_FONT)
-        draw_text("P2: " + str(score[1]), 580, 60, RED, SCORE_FONT)
+        draw_text(f"P1: {score[0]}", 20, 60, RED, SCORE_FONT)
+        draw_text(f"P2: {score[1]}", 580, 60, RED, SCORE_FONT)
 
-        # Countdown
         if intro_count <= 0:
             fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_2, round_over)
             fighter_2.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_1, round_over)
@@ -115,13 +102,11 @@ def start_battle():
                 intro_count -= 1
                 last_count_update = pygame.time.get_ticks()
 
-        # Update & Draw fighters
         fighter_1.update()
         fighter_2.update()
         fighter_1.draw(screen)
         fighter_2.draw(screen)
 
-        # Check win
         if not round_over:
             if not fighter_1.alive:
                 score[1] += 1
@@ -143,7 +128,7 @@ def start_battle():
 
         pygame.display.update()
 
-# Story Chapters
+# Story sequence
 lore_chapters = [
     [
         "Bab 1: Awal Kebangkitan",
@@ -166,7 +151,6 @@ lore_chapters = [
     ]
 ]
 
-# Game Loop
 def main():
     for chapter in lore_chapters:
         show_dialogue(chapter)
@@ -176,4 +160,5 @@ def main():
         "Tapi... celah ke Void belum sepenuhnya tertutup..."
     ])
 
-main()
+if __name__ == "__main__":
+    main()
