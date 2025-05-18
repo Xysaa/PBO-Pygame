@@ -83,12 +83,15 @@ class Character(ABC):
                 if keys[pygame.K_w] and not self._jump:
                     self._vel_y = -30
                     self._jump = True
-                if keys[pygame.K_r] or keys[pygame.K_t]:
+                if keys[pygame.K_r] or keys[pygame.K_t] or  keys[pygame.K_e]:
                     self.attack(target)
                     if keys[pygame.K_r]:
                         self._attack_type = 1
                     if keys[pygame.K_t]:
                         self._attack_type = 2
+                    if keys[pygame.K_e]:
+                        self._attack_type = 3
+                         
             # Player 2 or Bot controls
             if self._player == 2:
                 if self._is_bot:
@@ -115,18 +118,20 @@ class Character(ABC):
                     if keys[pygame.K_UP] and not self._jump:
                         self._vel_y = -30
                         self._jump = True
-                    if keys[pygame.K_l] or keys[pygame.K_k]:
+                    if keys[pygame.K_l] or keys[pygame.K_k] or keys[pygame.K_j]:
                         self.attack(target)
                         if keys[pygame.K_l]:
                             self._attack_type = 1
                         if keys[pygame.K_k]:
                             self._attack_type = 2
+                        if keys[pygame.K_j]:
+                            self._attack_type = 3
         # Apply gravity
         self._vel_y += GRAVITY
         dy += self._vel_y
         # Boundaries
-        if self._rect.left + dx < 0:
-            dx = -self._rect.left
+        if self._rect.left + dx < 20:
+            dx =20-self._rect.left
         if self._rect.right + dx > screen_width:
             dx = screen_width - self._rect.right
         if self._rect.bottom + dy > screen_height - 110:
@@ -146,14 +151,16 @@ class Character(ABC):
         if self._health <= 0:
             self._health = 0
             self._alive = False
-            self.update_action(6)
+            self.update_action(7)
         elif self._hit:
-            self.update_action(5)
+            self.update_action(6)
         elif self._attacking:
             if self._attack_type == 1:
                 self.update_action(3)
             elif self._attack_type == 2:
                 self.update_action(4)
+            elif self._attack_type == 3:
+                self.update_action (5)
         elif self._jump:
             self.update_action(2)
         elif self._running:
@@ -171,10 +178,10 @@ class Character(ABC):
                 self._frame_index = len(self._animation_list[self._action]) - 1
             else:
                 self._frame_index = 0
-                if self._action in (3, 4):
+                if self._action in (3, 4, 5):
                     self._attacking = False
                     self._attack_cooldown = 20
-                if self._action == 5:
+                if self._action == 6:
                     self._hit = False
                     self._attacking = False
                     self._attack_cooldown = 20

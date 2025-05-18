@@ -1,0 +1,26 @@
+{ "frames": [
+   {
+    "filename": "skeleton.ase",
+    "frame": { "x": 0, "y": 0, "w": 1200, "h": 750 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 1200, "h": 750 },
+    "sourceSize": { "w": 1200, "h": 750 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "/home/daniel/Documents/Code/tubes_pbo/PBO-Pygame/assets/images/Monsters_Creatures_Fantasy/Skeleton/skeleton.png",
+  "format": "RGBA8888",
+  "size": { "w": 1200, "h": 750 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" },
+   { "name": "Layer 2", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}
