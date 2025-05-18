@@ -1,61 +1,126 @@
-
 import pygame
+import os
 
+# Initialize Pygame
 pygame.init()
 
-
-screen_width = 800
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Story")
+# Initial window size
 
 
-white = (255, 255, 255)
-black = (0, 0, 0)
-button_color = (80, 80, 80)
-text_color = (200, 200, 200)
+# Colors
+hitam = (0, 0, 0)
+putih = (255, 255, 255)
+
+# Fonts
+font_judul = pygame.font.Font(None, 72)
+font_teks_besar = pygame.font.Font(None, 60)
+font_teks_kecil = pygame.font.Font(None, 30)
+
+# Credits text
+daftar_kredit = [
+    "TERIMA KASIH TELAH BERMAIN!",
+    " ",
+    "Pengembang utama",
+    "Daniel Calvin Simanjuntak",
+    "Danang Ridho Laksono",
+    "Garis Raya Rabbani",
+    "Arrauf Setiawan Muhammad Jabar",
+    "Stevanus Cahya anggara",
+    " ",
+    "Programmer",
+    "Daniel Calvin Simanjuntak",
+    "Garis Raya Rabbani",
+    "Arrauf Setiawan Muhammad Jabar",
+    "Stevanus Cahya anggara",
+    " ",
+    "Designer",
+    "Daniel Calvin Simanjuntak",
+    "Danang Ridho Laksono",
+    "Garis Raya Rabbani",
+    " ",
+    "Sfx",
+    "Nama Tester 1",
+    "Nama Tester 2",
+    "Nama Tester 3",
+    " ",
+    "Special Thanks To",
+    "Gemini",
+    "GPT",
+    "Claude",
+    "Blackbox",
+    "Copyright (c) 2025 Kebelet Production",
+]
+
+# Scroll position starts at bottom of screen
 
 
-font = pygame.font.Font(None, 36)
+# Scroll speed
 
-coming_soon_text = font.render("COMING SOON", True, black)
-text_rect = coming_soon_text.get_rect(center=(screen_width // 2, screen_height // 2 - 50))
+#jalankan c
+def run_credit():
+    screen_width, screen_height = 1000, 600
+    screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
+    pygame.display.set_caption("Credits with Scaled Background")
 
+    y_kredit = screen_height
 
-back_button_width = 200
-back_button_height = 50
-back_button_x = screen_width // 2 - back_button_width // 2
-back_button_y = screen_height - 100
-back_button_rect = pygame.Rect(back_button_x, back_button_y, back_button_width, back_button_height)
-back_button_text = font.render("Kembali ke Menu", True, text_color)
-back_button_text_rect = back_button_text.get_rect(center=back_button_rect.center)
+    kecepatan_gulir = 1
 
-def jalankan_story():
+# Load background image (replace with your actual image path
+    try:
+        background_img_original = pygame.image.load("assets/images/background/backgroundCreditScene.png").convert()
+    except Exception as e:
+        print(f"Error loading background image: {e}")
+        background_img_original = None
+
+    clock = pygame.time.Clock()
+
     running = True
     while running:
+        dt = clock.tick(60)  # Limit FPS to 60
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if back_button_rect.collidepoint(event.pos):
-                    print("Tombol 'Kembali ke Menu' diklik!")
-                    running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
 
-        screen.fill(white)
+            elif event.type == pygame.VIDEORESIZE:
+                # Update screen size on resize
+                screen_width, screen_height = event.w, event.h
+                screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 
-        
-        screen.blit(coming_soon_text, text_rect)
+        # Draw scaled background or fill black if no image
+        if background_img_original:
+            scaled_bg = pygame.transform.smoothscale(background_img_original, (screen_width, screen_height))
+            screen.blit(scaled_bg, (0, 0))
+        else:
+            screen.fill(hitam)
 
-        pygame.draw.rect(screen, button_color, back_button_rect)
-        screen.blit(back_button_text, back_button_text_rect)
+        # Draw credit text, scrolling vertically
+        y_pos = y_kredit
+        for teks in daftar_kredit:
+            if teks:
+                if daftar_kredit.index(teks) == 0:  # Judul
+                    teks_render = font_judul.render(teks, True, putih)
+                elif ("Pengembang" in teks or "Programmer" in teks or "Designer" in teks or "Sfx" in teks
+                    or "Special Thanks To" in teks):
+                    teks_render = font_teks_besar.render(teks, True, putih)
+                else:
+                    teks_render = font_teks_kecil.render(teks, True, putih)
 
-        
+                teks_rect = teks_render.get_rect(center=(screen_width // 2, int(y_pos)))
+                screen.blit(teks_render, teks_rect)
+                y_pos += teks_rect.height + 10
+
+        # Update credit scroll position
+        y_kredit -= kecepatan_gulir
+
+        # Reset scroll when all text is above screen
+        if y_pos < 0:
+            y_kredit = screen_height
+
         pygame.display.flip()
+    
+          
 
-    pygame.quit() 
-
-if __name__ == '__main__':
-    jalankan_story()
+if __name__ == "__main__":
+    run_credit()
