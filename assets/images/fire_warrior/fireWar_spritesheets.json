@@ -1,0 +1,25 @@
+{ "frames": [
+   {
+    "filename": "fireWar_spritesheets.ase",
+    "frame": { "x": 0, "y": 0, "w": 7488, "h": 1024 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 7488, "h": 1024 },
+    "sourceSize": { "w": 7488, "h": 1024 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "/home/daniel/Documents/Code/tubes_pbo/PBO-Pygame/assets/images/fire_warrior/fireWar_spritesheets1.png",
+  "format": "RGBA8888",
+  "size": { "w": 7488, "h": 1024 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}
