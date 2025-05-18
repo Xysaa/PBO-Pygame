@@ -1,32 +1,30 @@
 import pygame
-import subprocess
-
-
+import story
+import freebattle
+import credit
 pygame.init()
 
-
-screen_width = 800
+# Ukuran awal jendela
+screen_width= 1000
 screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 pygame.display.set_caption("Menu Utama")
-
 
 try:
     background_image = pygame.image.load("assets/images/background/background_main_menu.jpeg").convert()
-    background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
-   
 except pygame.error as e:
     print(f"Error loading background image: {e}")
     background_color = (50, 50, 50)
     background_image = pygame.Surface((screen_width, screen_height))
     background_image.fill(background_color)
 
+fullscreen = False
 
 button_data = [
-    {"text": "LORE OF THE CHOSEN", "x": 207, "y": 305, "width": 315, "height": 40, "action": "story"},
-    {"text": "FREE BATTLE", "x": 207, "y": 375, "width": 315, "height": 40, "action": "free_battle"},
-    {"text": "CREDITS", "x": 207, "y": 445, "width": 315, "height": 40, "action": "credits"},
-    {"text": "EXIT", "x": 207, "y": 515, "width": 315, "height": 40, "action": "exit"}
+    {"text": "LORE OF THE CHOSEN", "x": 258.75, "y": 305, "width": 393.75, "height": 40, "action": "story"},
+    {"text": "FREE BATTLE", "x": 258.75, "y": 375, "width": 393.75, "height": 40, "action": "free_battle"},
+    {"text": "CREDITS", "x": 258.75, "y": 445, "width": 393.75, "height": 40, "action": "credits"},
+    {"text": "EXIT", "x": 258.75, "y": 515, "width": 393.75, "height": 40, "action": "exit"}
 ]
 
 buttons = []
@@ -37,45 +35,51 @@ for data in button_data:
 # Loop utama
 running = True
 while running:
+    
     for event in pygame.event.get():
+        pygame.mixer_music.stop()
         if event.type == pygame.QUIT:
+            
             running = False
+        
+        if event.type == pygame.VIDEORESIZE:
+            lebar_layar, tinggi_layar = event.size
+            screen = pygame.display.set_mode((lebar_layar, tinggi_layar), pygame.RESIZABLE)
+            skala_x = lebar_layar / screen_width
+            skala_y = tinggi_layar / screen_height
+            buttons = []
+            
+            for data in button_data:
+                rect = pygame.Rect(int(data["x"] * skala_x), int(data["y"] * skala_y),
+                                   int(data["width"] * skala_x), int(data["height"] * skala_y))
+                buttons.append({"rect": rect, "action": data["action"]})
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F11:
+                fullscreen = not fullscreen
+                if fullscreen:
+                    screen = pygame.display.set_mode((pygame.display.Info().current_w, pygame.display.Info().current_h), pygame.FULLSCREEN)
+                else:
+                    screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
+
+            
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
             for button in buttons:
                 if button["rect"].collidepoint(mouse_pos):
-                    print(f"Tombol dengan aksi '{button['action']}' diklik!")
                     if button["action"] == "story":
-                        try:
-                            subprocess.Popen(["python", "story.py"])
-                            
-                        except FileNotFoundError:
-                            print("Error: File 'story.py' tidak ditemukan!")
-                        except Exception as e:
-                            print(f"Error menjalankan 'story.py': {e}")
-                    elif button["action"] == "free_battle":
-                        try:
-                            subprocess.Popen(["python", "freebattle.py"])
-                            # JANGAN SET running = False DI SINI
-                        except FileNotFoundError:
-                            print("Error: File 'freebattle.py' tidak ditemukan!")
-                        except Exception as e:
-                            print(f"Error menjalankan 'freebattle.py': {e}")
+                        pygame.mixer_music.play(-1)
+                        story.main_story()  # Memanggil fungsi main_story dari modul story
+                    if button["action"] == "free_battle":
+                        pygame.mixer_music.play(-1)
+                        freebattle.start_battle() # Memanggil fungsi main dari modul freebattle
                     elif button["action"] == "credits":
-                        try:
-                            subprocess.Popen(["python", "credit.py"])
-                            
-                        except FileNotFoundError:
-                            print("Error: File 'credit.py' tidak ditemukan!")
-                        except Exception as e:
-                            print(f"Error menjalankan 'credit.py': {e}")
+                        credit.run_credit()      # Memanggil fungsi main dari modul credit
                     elif button["action"] == "exit":
                         running = False
+    scaled_background = pygame.transform.scale(background_image, (screen.get_width(), screen.get_height()))
+    screen.blit(scaled_background, (0, 0))
 
-
-    screen.blit(background_image, (0, 0))
-
-    
     pygame.display.flip()
 
 # Keluar dari Pygame

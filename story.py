@@ -7,6 +7,7 @@ from fighter import Warrior, Wizard
 pygame.init()
 mixer.init()
 
+
 # Screen
 SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -73,6 +74,7 @@ def wait_for_key():
 
 # Battle
 def start_battle():
+
     clock = pygame.time.Clock()
     FPS = 60
     intro_count = 3
@@ -123,6 +125,7 @@ def start_battle():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
                 pygame.quit()
                 sys.exit()
 
@@ -130,6 +133,7 @@ def start_battle():
 
 # Story sequence
 lore_chapters = [
+
     [
         "Bab 1: Awal Kebangkitan",
         "Dunia Aetherion pernah damai, hingga Celestial Seal rusak...",
@@ -151,7 +155,10 @@ lore_chapters = [
     ]
 ]
 
-def main():
+
+def main_story():
+    
+
     for chapter in lore_chapters:
         show_dialogue(chapter)
         start_battle()
@@ -159,6 +166,7 @@ def main():
         "Kamu menang! Stevanus kini menjadi karakter baru di Free Battle.",
         "Tapi... celah ke Void belum sepenuhnya tertutup..."
     ])
-
+   
 if __name__ == "__main__":
-    main()
+    pass
+
