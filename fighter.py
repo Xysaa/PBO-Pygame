@@ -5,6 +5,8 @@ class Character(ABC):
     def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound, screen_height, is_bot=False):
         # Encapsulated attributes
         self._player = player
+        self.initial_x=x 
+        self.initial_y=y 
         self._frame_width = data[0]
         self._frame_height = data[1]
         self._image_scale = data[2]
@@ -31,6 +33,7 @@ class Character(ABC):
         self._alive = True
         self._is_bot = is_bot
         self._screen_height = screen_height
+      
 
     @property
     def health(self):
@@ -62,7 +65,21 @@ class Character(ABC):
                 temp_img_list.append(scaled)
             animation_list.append(temp_img_list)
         return animation_list
-
+    
+    def reset(self):
+        self._rect.x = self.initial_x
+        self._rect.y = self.initial_y
+        self._health = 100
+        self._alive = True
+        self._action = 0
+        self._frame_index = 0
+        self._update_time = pygame.time.get_ticks()
+        self._attacking = False
+        self._attack_type = 0
+        self._attack_cooldown = 0
+        self._jump = False
+        self._vel_y = 0
+        self._hit = False
     def move(self, screen_width, screen_height, surface, target, round_over):
         SPEED = 10
         GRAVITY = 2
