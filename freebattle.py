@@ -72,6 +72,7 @@ def start_battle():
     round_over = False
     ROUND_OVER_COOLDOWN = 2000
     round_over_time = 0
+    game_over_time = None  # Untuk jeda sebelum kembali ke menu
 
     paused = False
     pause_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 40, 10, 80, 40)
@@ -182,4 +183,16 @@ def start_battle():
             screen.blit(main_menu_text_render, main_menu_button_rect.topleft)
             # <<< AKHIR PERUBAHAN GAMBAR TOMBOL >>>
 
+        # Cek jika salah satu pemain mencapai 3 poin, beri jeda 3 detik sebelum kembali ke main menu
+        if score[0] >= 3 or score[1] >= 3:
+            if game_over_time is None:
+                pygame.mixer.music.stop()
+                game_over_time = pygame.time.get_ticks()
+            elif pygame.time.get_ticks() - game_over_time > 3000:
+                round_over = False
+                intro_count = 3
+                run = False
+            
+
+        # Update display
         pygame.display.update()

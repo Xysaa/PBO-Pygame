@@ -76,6 +76,7 @@ def run_credit():
     clock = pygame.time.Clock()
 
     running = True
+    pause_menu = False
     while running:
         dt = clock.tick(60)  # Limit FPS to 60
 
@@ -87,6 +88,11 @@ def run_credit():
                 # Update screen size on resize
                 screen_width, screen_height = event.w, event.h
                 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
+
+            # ketika esc ditekan akan kembali ke menu utama
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
 
         # Draw scaled background or fill black if no image
         if background_img_original:
