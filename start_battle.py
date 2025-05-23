@@ -106,6 +106,8 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
                 if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
                     round_over = False
                     intro_count = 3
+                    fighter_1.reset()
+                    fighter_2.reset()
                     # fighter_1 = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
                     # fighter_2 = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
                     #
