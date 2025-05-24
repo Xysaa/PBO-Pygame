@@ -68,7 +68,7 @@ while running:
             for button in buttons:
                 if button["rect"].collidepoint(mouse_pos):
                     if button["action"] == "story":
-                        pygame.mixer_music.play(-1)
+                        # pygame.mixer_music.play(-1)
                         story.main_story()  # Memanggil fungsi main_story dari modul story
                     if button["action"] == "free_battle":
                         pygame.mixer_music.play(-1)
@@ -81,6 +81,7 @@ while running:
     screen.blit(scaled_background, (0, 0))
 
     pygame.display.flip()
-
+if __name__ == "__main__":
+    main_menu()
 # Keluar dari Pygame
 pygame.quit()
