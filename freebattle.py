@@ -1,7 +1,6 @@
 import pygame
 from pygame import mixer
 from fighter import Warrior, Wizard
-import start_battle
 from character_data import CHARACTER_DATA
 from character_assets import load_character_assets
 from start_battle import start_battle as run_battle

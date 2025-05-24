@@ -252,3 +252,19 @@ class Wizard(Character):
             if attacking_rect.colliderect(target.rect):
                 target._health -= 15
                 target._hit = True
+class Mobs(Character):
+    def attack(self, target):
+        if self._attack_cooldown == 0:
+            self._attacking = True
+            self._attack_sound.play()
+            attacking_rect = pygame.Rect(
+                self._rect.centerx - (2 * self._rect.width * self._flip),
+                self._rect.y,
+                2 * self._rect.width,
+                self._rect.height
+            )
+            if attacking_rect.colliderect(target.rect):
+                target._health -= 9
+                target._hit = True
+
+
