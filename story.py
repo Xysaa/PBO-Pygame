@@ -32,7 +32,7 @@ warrior_assets = assets["warrior"]
 wizard_data = CHARACTER_DATA["wizard"]
 wizard_assets = assets["wizard"]
 #
-bg_image = pygame.image.load("assets/images/background/background.jpg").convert_alpha()
+bg_image = pygame.image.load("assets/images/background/background.jpeg").convert_alpha()
 victory_img = pygame.image.load("assets/images/icons/victory.png").convert_alpha()
 
 # Text funcs
