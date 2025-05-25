@@ -165,6 +165,24 @@ class Character(ABC):
         self._rect.y += dy
 
     def update(self):
+        pass 
+    def update_action(self, new_action):
+        pass
+    @abstractmethod
+    def attack(self, target):
+        pass
+
+    def draw(self, surface):
+        img = pygame.transform.flip(self._image, self._flip, False)
+        surface.blit(
+            img,
+            (self._rect.x - (self._offset[0] * self._image_scale),
+             self._rect.y - (self._offset[1] * self._image_scale))
+        )
+
+
+class Warrior(Character):
+    def update(self):
         if self._health <= 0:
             self._health = 0
             self._alive = False
@@ -209,20 +227,6 @@ class Character(ABC):
             self._frame_index = 0
             self._update_time = pygame.time.get_ticks()
 
-    @abstractmethod
-    def attack(self, target):
-        pass
-
-    def draw(self, surface):
-        img = pygame.transform.flip(self._image, self._flip, False)
-        surface.blit(
-            img,
-            (self._rect.x - (self._offset[0] * self._image_scale),
-             self._rect.y - (self._offset[1] * self._image_scale))
-        )
-
-
-class Warrior(Character):
     def attack(self, target):
         if self._attack_cooldown == 0:
             self._attacking = True
@@ -253,6 +257,50 @@ class Wizard(Character):
                 target._health -= 15
                 target._hit = True
 class Mobs(Character):
+
+    def update(self):
+        if self._health <= 0:
+            self._health = 0
+            self._alive = False
+            self.update_action(4)
+        elif self._hit:
+            self.update_action(3)
+        elif self._attacking:
+            if self._attack_type == 1:
+                self.update_action(2)
+            elif self._attack_type == 2:
+                self.update_action(2)
+            elif self._attack_type == 3:
+                self.update_action (2)
+
+        elif self._running:
+            self.update_action(1)
+        else:
+            self.update_action(0)
+
+        animation_cooldown = 50
+        self._image = self._animation_list[self._action][self._frame_index]
+        if pygame.time.get_ticks() - self._update_time > animation_cooldown:
+            self._frame_index += 1
+            self._update_time = pygame.time.get_ticks()
+        if self._frame_index >= len(self._animation_list[self._action]):
+            if not self._alive:
+                self._frame_index = len(self._animation_list[self._action]) - 1
+            else:
+                self._frame_index = 0
+                if self._action in (2,2,2):
+                    self._attacking = False
+                    self._attack_cooldown = 20
+                if self._action == 3:
+                    self._hit = False
+                    self._attacking = False
+                    self._attack_cooldown = 20
+
+    def update_action(self, new_action):
+        if new_action != self._action:
+            self._action = new_action
+            self._frame_index = 0
+            self._update_time = pygame.time.get_ticks()
     def attack(self, target):
         if self._attack_cooldown == 0:
             self._attacking = True
