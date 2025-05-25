@@ -10,7 +10,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 180, 0)
 DARK_RED = (180, 0, 0)
 
-def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img):
+def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img,is_story=False):
     clock = pygame.time.Clock()
     FPS = 60
 
@@ -35,8 +35,9 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
     resume_button_rect = resume_text_render.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
     main_menu_button_rect = main_menu_text_render.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 40))
     # <<< PERUBAHAN SELESAI DI SINI >>>
-
-
+    
+    return_to_main_menu = False
+    
 
     try:
         pygame.mixer.music.load("assets/audio/music.mp3")
@@ -65,6 +66,7 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
                         elif main_menu_button_rect.collidepoint(mouse_pos):
                             pygame.mixer.music.stop()
                             run = False
+                            return_to_main_menu = True
                     else:
                         if not round_over and intro_count <= 0 and pause_button_rect.collidepoint(mouse_pos):
                             paused = True
@@ -104,10 +106,13 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
             else:
                 screen.blit(victory_img, (360, 150))
                 if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
-                    round_over = False
-                    intro_count = 3
-                    fighter_1.reset()
-                    fighter_2.reset()
+                    if is_story:
+                        run =False
+                    else:
+                        round_over = False
+                        intro_count = 3
+                        fighter_1.reset()
+                        fighter_2.reset()
                     # fighter_1 = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
                     # fighter_2 = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
                     #
@@ -132,6 +137,7 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
             # <<< AKHIR PERUBAHAN GAMBAR TOMBOL >>>
         
         pygame.display.update()
+    return return_to_main_menu
 if __name__ == "__main__":
     pass
 
