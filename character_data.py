@@ -49,7 +49,7 @@ CHARACTER_DATA = {
         "scale": 3,
         "offset": [125, 50],
         "animation_steps": [8,8,6,8,18,30,6,19],
-        "sound_path": "assets/audio/sword.wav",
+        "sound_path": "assets/audio/assasin.mpeg",
         "image_path": "assets/images/assasin/assasin_sprites.png",
         "face_path" : "assets/images/assasin/face.png"
     },
@@ -59,7 +59,7 @@ CHARACTER_DATA = {
         "scale": 4,
         "offset": [125, 63],
         "animation_steps": [6,8,6,6,9,25,6,18],
-        "sound_path": "assets/audio/sword.wav",
+        "sound_path": "assets/audio/monk.wav",
         "image_path": "assets/images/monk/monk_spritesheets.png",
         "face_path" : "assets/images/monk/face.png"
     },
