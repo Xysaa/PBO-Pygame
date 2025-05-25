@@ -27,8 +27,8 @@ DARK_RED = (180, 0, 0)
 assets = load_character_assets()
 warrior_data = CHARACTER_DATA["warrior"]
 warrior_assets = assets["warrior"]
-wizard_data = CHARACTER_DATA["wizard"]
-wizard_assets = assets["wizard"]
+wizard_data = CHARACTER_DATA["monk"]
+wizard_assets = assets["monk"]
 #
 bg_image = pygame.image.load("assets/images/background/background.jpg").convert_alpha()
 victory_img = pygame.image.load("assets/images/icons/victory.png").convert_alpha()
