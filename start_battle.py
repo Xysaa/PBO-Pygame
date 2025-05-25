@@ -9,6 +9,7 @@ GREY = (200, 200, 200)
 BLACK = (0, 0, 0)
 GREEN = (0, 180, 0)
 DARK_RED = (180, 0, 0)
+DARK_BlUE = (74,84,98)
 
 def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img,is_story=False):
     clock = pygame.time.Clock()

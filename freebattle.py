@@ -22,6 +22,7 @@ GREY = (200, 200, 200)
 BLACK = (0, 0, 0)
 GREEN = (0, 180, 0)
 DARK_RED = (180, 0, 0)
+DARK_BlUE = (74,84,98)
 
 # Fighter config
 assets = load_character_assets()
@@ -49,7 +50,7 @@ def draw_health_bar(health, x, y):
     ratio = health / 100
     pygame.draw.rect(screen, WHITE, (x - 2, y - 2, 404, 34))
     pygame.draw.rect(screen, RED, (x, y, 400, 30))
-    pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
+    pygame.draw.rect(screen, DARK_BlUE, (x, y, 400 * ratio, 30))
     
 # fighter1_data = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
 # fighter2_data = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
