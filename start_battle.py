@@ -50,10 +50,9 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
     while run:
         clock.tick(FPS)
         mouse_pos = pygame.mouse.get_pos()
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.mixer.music.stop()
                 run = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:

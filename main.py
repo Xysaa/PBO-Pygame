@@ -2,6 +2,8 @@ import pygame
 import story
 import freebattle
 import credit
+from pygame import mixer
+mixer.init()
 pygame.init()
 
 # Ukuran awal jendela
@@ -12,14 +14,22 @@ def main_menu():
     pygame.display.set_caption("Menu Utama")
 
     try:
+        pygame.mixer.music.load("assets/audio/music_main.wav")
+        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.play(-1, 0.0, 5000)
+    except pygame.error as e:
+        print(f"Error loading battle music: {e}")
+
+    try:
         background_image = pygame.image.load("assets/images/background/background_main_menu.jpeg").convert()
     except pygame.error as e:
         print(f"Error loading background image: {e}")
         background_color = (50, 50, 50)
         background_image = pygame.Surface((screen_width, screen_height))
         background_image.fill(background_color)
+    
 
-    fullscreen = False
+    
 
     button_data = [
         {"text": "LORE OF THE CHOSEN", "x": 258.75, "y": 305, "width": 393.75, "height": 40, "action": "story"},
@@ -38,7 +48,6 @@ def main_menu():
     while running:
         
         for event in pygame.event.get():
-            pygame.mixer_music.stop()
             if event.type == pygame.QUIT:
                 
                 running = False
@@ -69,11 +78,11 @@ def main_menu():
                 for button in buttons:
                     if button["rect"].collidepoint(mouse_pos):
                         if button["action"] == "story":
-                            # pygame.mixer_music.play(-1)
                             story.main_story()  # Memanggil fungsi main_story dari modul story
+                            return main_menu()
                         if button["action"] == "free_battle":
-                            pygame.mixer_music.play(-1)
                             freebattle.start_battle() # Memanggil fungsi main dari modul freebattle
+                            return main_menu()
                         elif button["action"] == "credits":
                             credit.run_credit()      # Memanggil fungsi main dari modul credit
                         elif button["action"] == "exit":
