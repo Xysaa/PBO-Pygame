@@ -1,51 +1,49 @@
+
 import pygame
-import sys
 from pygame import mixer
 from fighter import Warrior, Wizard
+import start_battle
+from character_data import CHARACTER_DATA
+from character_assets import load_character_assets
+from start_battle import start_battle as run_battle
 
-# Init
-pygame.init()
 mixer.init()
+pygame.init()
 
-
-# Screen
-SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 600
+# Create game window
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Ascension of the Chosen")
+pygame.display.set_caption("THe Choosen")
 
-# Colors & Fonts
-WHITE = (255, 255, 255)
+# Colors
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
-FONT = pygame.font.Font("assets/fonts/turok.ttf", 32)
-COUNT_FONT = pygame.font.Font("assets/fonts/turok.ttf", 80)
-SCORE_FONT = pygame.font.Font("assets/fonts/turok.ttf", 30)
+WHITE = (255, 255, 255)
+GREY = (200, 200, 200)
+BLACK = (0, 0, 0)
+GREEN = (0, 180, 0)
+DARK_RED = (180, 0, 0)
 
-# Audio
-pygame.mixer.music.load("assets/audio/music.mp3")
-pygame.mixer.music.set_volume(0.5)
-pygame.mixer.music.play(-1, 0.0, 5000)
-sword_fx = pygame.mixer.Sound("assets/audio/sword.wav")
-sword_fx.set_volume(0.5)
-magic_fx = pygame.mixer.Sound("assets/audio/magic.wav")
-magic_fx.set_volume(0.75)
-
-# Assets
+# Fighter config
+assets = load_character_assets()
+warrior_data = CHARACTER_DATA["warrior"]
+warrior_assets = assets["warrior"]
+wizard_data = CHARACTER_DATA["wizard"]
+wizard_assets = assets["wizard"]
+#
 bg_image = pygame.image.load("assets/images/background/background.jpg").convert_alpha()
 victory_img = pygame.image.load("assets/images/icons/victory.png").convert_alpha()
-warrior_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior4r.png").convert_alpha()
-wizard_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior4r.png").convert_alpha()
 
-# Config
-WARRIOR_DATA = [48, 48, 3, [10, -25]]
-WIZARD_DATA = [48, 48, 3, [10, -25]]
-WARRIOR_ANIM = [10, 8, 1, 7, 7, 3, 7]
-WIZARD_ANIM = [10, 8, 1, 7, 7, 3, 7]
+# Text funcs
+font_large = pygame.font.Font("assets/fonts/turok.ttf", 80)
+font_med = pygame.font.Font("assets/fonts/turok.ttf", 40)
+font_small = pygame.font.Font("assets/fonts/turok.ttf", 30)
 
-# UI funcs
-def draw_text(text, x, y, color=WHITE, font=FONT):
+def draw_text(text, font, color, x, y):
     img = font.render(text, True, color)
     screen.blit(img, (x, y))
+
 
 def draw_bg():
     screen.blit(pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT)), (0, 0))
@@ -57,81 +55,43 @@ def draw_health_bar(health, x, y):
     pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 def show_dialogue(lines):
+    try:
+        pygame.mixer.music.load("assets/audio/story.wav")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1, 0.0, 5000)
+    except pygame.error as e:
+        print(f"Error loading battle music: {e}")
     for line in lines:
         screen.fill((0, 0, 0))
-        draw_text(line, 50, SCREEN_HEIGHT // 2)
+        draw_text(line, font_small,WHITE,20,SCREEN_HEIGHT // 2)
         pygame.display.update()
-        wait_for_key()
+        if not wait_for_key():
+            return False
+    return True
 
 def wait_for_key():
-    while True:
+    waiting = True
+    while waiting:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return False
             if event.type == pygame.KEYDOWN:
-                return
+                return True
 
-# Battle
+    return True
+
+# fighter1_data = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
+# fighter2_data = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
+#
+
+# run_battle(screen, draw_bg, font_small, font_med, font_large, draw_health_bar, draw_text, Warrior, Wizard, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], [*wizard_data["size"], wizard_data["scale"], wizard_data["offset"]], warrior_assets, wizard_assets, victory_img, "assets/audio/music.mp3")
+# start_battle.start_battle(screen, draw_bg, font_small, font_med, font_large, draw_health_bar, draw_text,Warrior, Wizard, fighter1_data, fighter2_data, victory_img)
+#
+fighter_1 = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
+fighter_2 = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
 def start_battle():
-
-    clock = pygame.time.Clock()
-    FPS = 60
-    intro_count = 3
-    last_count_update = pygame.time.get_ticks()
-    round_over = False
-    ROUND_OVER_COOLDOWN = 2000
-    score = [0, 0]
-
-    fighter_1 = Warrior(1, 200, 400, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIM, sword_fx, SCREEN_HEIGHT, is_bot=False)
-    fighter_2 = Wizard(2, 700, 400, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIM, magic_fx, SCREEN_HEIGHT, is_bot=True)
-
-    run = True
-    while run:
-        clock.tick(FPS)
-        draw_bg()
-        draw_health_bar(fighter_1.health, 20, 20)
-        draw_health_bar(fighter_2.health, 580, 20)
-        draw_text(f"P1: {score[0]}", 20, 60, RED, SCORE_FONT)
-        draw_text(f"P2: {score[1]}", 580, 60, RED, SCORE_FONT)
-
-        if intro_count <= 0:
-            fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_2, round_over)
-            fighter_2.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_1, round_over)
-        else:
-            draw_text(str(intro_count), SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3, RED, COUNT_FONT)
-            if (pygame.time.get_ticks() - last_count_update) >= 1000:
-                intro_count -= 1
-                last_count_update = pygame.time.get_ticks()
-
-        fighter_1.update()
-        fighter_2.update()
-        fighter_1.draw(screen)
-        fighter_2.draw(screen)
-
-        if not round_over:
-            if not fighter_1.alive:
-                score[1] += 1
-                round_over = True
-                round_over_time = pygame.time.get_ticks()
-            elif not fighter_2.alive:
-                score[0] += 1
-                round_over = True
-                round_over_time = pygame.time.get_ticks()
-        else:
-            screen.blit(victory_img, (360, 150))
-            if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
-                run = False
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.mixer.music.stop()
-                pygame.quit()
-                sys.exit()
-
-        pygame.display.update()
-
-# Story sequence
+    return_to_main_menu = run_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img,is_story=True)
+    return return_to_main_menu
 lore_chapters = [
 
     [
@@ -157,16 +117,22 @@ lore_chapters = [
 
 
 def main_story():
-    
-
-    for chapter in lore_chapters:
-        show_dialogue(chapter)
-        start_battle()
+    for i, chapter in enumerate (lore_chapters):
+        if not show_dialogue(chapter):
+            return 
+        
+        play_menu = start_battle()
+        #mengembalikan ke main menu ketika main menu di klik
+        if play_menu:
+            return
+        #reset kondisi karakter ketika memasuki chapter baru
+        fighter_1.reset()
+        fighter_2.reset()
     show_dialogue([
         "Kamu menang! Stevanus kini menjadi karakter baru di Free Battle.",
         "Tapi... celah ke Void belum sepenuhnya tertutup..."
     ])
-   
 if __name__ == "__main__":
     pass
+
 
