@@ -58,17 +58,20 @@ def show_dialogue(lines):
         screen.fill((0, 0, 0))
         draw_text(line, font_small,WHITE,20,SCREEN_HEIGHT // 2)
         pygame.display.update()
-        wait_for_key()
+        if not wait_for_key():
+            return False
+    return True
 
 def wait_for_key():
-    while True:
+    waiting = True
+    while waiting:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return False
             if event.type == pygame.KEYDOWN:
-                return
-    
+                return True
+    return True
+
 # fighter1_data = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
 # fighter2_data = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
 #
@@ -79,7 +82,8 @@ def wait_for_key():
 fighter_1 = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
 fighter_2 = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
 def start_battle():
-    run_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img)
+    return_to_main_menu = run_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img,is_story=True)
+    return return_to_main_menu
 lore_chapters = [
 
     [
@@ -105,17 +109,21 @@ lore_chapters = [
 
 
 def main_story():
-    
-
-    for chapter in lore_chapters:
-        show_dialogue(chapter)
-        run_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img)
-
+    for i, chapter in enumerate (lore_chapters):
+        if not show_dialogue(chapter):
+            return 
+        
+        play_menu = start_battle()
+        #mengembalikan ke main menu ketika main menu di klik
+        if play_menu:
+            return
+        #reset kondisi karakter ketika memasuki chapter baru
+        fighter_1.reset()
+        fighter_2.reset()
     show_dialogue([
         "Kamu menang! Stevanus kini menjadi karakter baru di Free Battle.",
         "Tapi... celah ke Void belum sepenuhnya tertutup..."
     ])
- 
 if __name__ == "__main__":
     pass
 
