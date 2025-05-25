@@ -1,7 +1,8 @@
 import pygame
 import os
-
+from pygame import mixer
 # Initialize Pygame
+mixer.init()
 pygame.init()
 
 # Initial window size
@@ -39,15 +40,9 @@ daftar_kredit = [
     "Garis Raya Rabbani",
     " ",
     "Sfx",
-    "Nama Tester 1",
-    "Nama Tester 2",
-    "Nama Tester 3",
+    "Stevanus Cahya Anggara",
+    "Garis Raya Rabbani",
     " ",
-    "Special Thanks To",
-    "Gemini",
-    "GPT",
-    "Claude",
-    "Blackbox",
     "Copyright (c) 2025 Kebelet Production",
 ]
 
@@ -72,10 +67,15 @@ def run_credit():
     except Exception as e:
         print(f"Error loading background image: {e}")
         background_img_original = None
-
+    try:
+        pygame.mixer.music.load("assets/audio/music_main.wav")
+        pygame.mixer.music.set_volume(0.7)
+        pygame.mixer.music.play(-1, 0.0, 5000)
+    except pygame.error as e: print(f"Error loading main menu music: {e}")
     clock = pygame.time.Clock()
 
     running = True
+    pause_menu = False
     while running:
         dt = clock.tick(60)  # Limit FPS to 60
 
@@ -87,6 +87,11 @@ def run_credit():
                 # Update screen size on resize
                 screen_width, screen_height = event.w, event.h
                 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
+
+            # ketika esc ditekan akan kembali ke menu utama
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
 
         # Draw scaled background or fill black if no image
         if background_img_original:

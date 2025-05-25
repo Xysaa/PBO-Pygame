@@ -1,0 +1,25 @@
+{ "frames": [
+   {
+    "filename": "assasin_sprites.ase",
+    "frame": { "x": 0, "y": 0, "w": 8640, "h": 1024 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8640, "h": 1024 },
+    "sourceSize": { "w": 8640, "h": 1024 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "/home/daniel/Pictures/asset baru/elementals_wind_hashashin_FREE_v1.1/sprites/assasin_sprites.png",
+  "format": "RGBA8888",
+  "size": { "w": 8640, "h": 1024 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}

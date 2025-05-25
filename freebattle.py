@@ -1,9 +1,10 @@
 import pygame
 from pygame import mixer
-from fighter import Warrior, Wizard
+from fighter import Warrior, Wizard, Mobs
 from character_data import CHARACTER_DATA
 from character_assets import load_character_assets
 from start_battle import start_battle as run_battle
+from char_sel import select_characters
 
 mixer.init()
 pygame.init()
@@ -22,15 +23,16 @@ GREY = (200, 200, 200)
 BLACK = (0, 0, 0)
 GREEN = (0, 180, 0)
 DARK_RED = (180, 0, 0)
+DARK_BlUE = (74,84,98)
 
 # Fighter config
 assets = load_character_assets()
-warrior_data = CHARACTER_DATA["warrior"]
-warrior_assets = assets["warrior"]
-wizard_data = CHARACTER_DATA["wizard"]
-wizard_assets = assets["wizard"]
+# warrior_data = CHARACTER_DATA["warrior"]
+# warrior_assets = assets["warrior"]
+# wizard_data = CHARACTER_DATA["monk"]
+# wizard_assets = assets["monk"]
 #
-bg_image = pygame.image.load("assets/images/background/background.jpg").convert_alpha()
+bg_image = pygame.image.load("assets/images/background/background.jpeg").convert_alpha()
 victory_img = pygame.image.load("assets/images/icons/victory.png").convert_alpha()
 
 # Text funcs
@@ -49,7 +51,7 @@ def draw_health_bar(health, x, y):
     ratio = health / 100
     pygame.draw.rect(screen, WHITE, (x - 2, y - 2, 404, 34))
     pygame.draw.rect(screen, RED, (x, y, 400, 30))
-    pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
+    pygame.draw.rect(screen, DARK_BlUE, (x, y, 400 * ratio, 30))
     
 # fighter1_data = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
 # fighter2_data = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
@@ -58,11 +60,23 @@ def draw_health_bar(health, x, y):
 # run_battle(screen, draw_bg, font_small, font_med, font_large, draw_health_bar, draw_text, Warrior, Wizard, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], [*wizard_data["size"], wizard_data["scale"], wizard_data["offset"]], warrior_assets, wizard_assets, victory_img, "assets/audio/music.mp3")
 # start_battle.start_battle(screen, draw_bg, font_small, font_med, font_large, draw_health_bar, draw_text,Warrior, Wizard, fighter1_data, fighter2_data, victory_img)
 #
-fighter_1 = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
-fighter_2 = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
+# fighter_1 = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
+# fighter_2 = Warrior(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
+#
 def start_battle():
-    run_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img)
-
+    # run_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_med, font_large,draw_health_bar, draw_text,fighter_1,fighter_2,victory_img)
+    fighter_1_selected, fighter_2_selected = select_characters(screen, font_small, font_med, assets, SCREEN_WIDTH, SCREEN_HEIGHT)
+    if fighter_1_selected is None or fighter_2_selected is None:
+        print("Character selection was cancelled or quit.")
+        return True
+    return_to_main_menu = run_battle(
+        SCREEN_WIDTH, SCREEN_HEIGHT, screen,
+        draw_bg, font_small, font_med, font_large,
+        draw_health_bar, draw_text,
+        fighter_1_selected, fighter_2_selected, # Use selected fighters
+        victory_img,
+        is_story=False)
+    return return_to_main_menu
 if __name__ == "__main__":
     pass
 
