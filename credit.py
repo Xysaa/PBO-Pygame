@@ -39,15 +39,9 @@ daftar_kredit = [
     "Garis Raya Rabbani",
     " ",
     "Sfx",
-    "Nama Tester 1",
-    "Nama Tester 2",
-    "Nama Tester 3",
+    "Stevanus Cahya Anggara",
+    "Garis Raya Rabbani",
     " ",
-    "Special Thanks To",
-    "Gemini",
-    "GPT",
-    "Claude",
-    "Blackbox",
     "Copyright (c) 2025 Kebelet Production",
 ]
 
