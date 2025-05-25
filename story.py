@@ -89,52 +89,52 @@ lore_chapters_data = {
         "name": "Chapter 1: Goblin Ambush", "opponent_id": "goblin",
         "background_image_path": "assets/images/background/BG1.png",
         "dialogue_sequence": [
-            {"speaker": "narrator", "lines": "Your journey as The Chosen begins now. The path ahead is uncertain, fraught with peril from the fractured Celestial Seal."},
-            {"speaker": "narrator", "lines": "Suddenly, the rustling in the bushes reveals a band of Goblins, their eyes gleaming with malice!"}
+            {"speaker": "narrator", "lines": "Perjalananmu sebagai Sang Terpilih dimulai sekarang. Jalan di depan tidak pasti, penuh dengan bahaya dari Segel Surgawi yang retak."},
+            {"speaker": "narrator", "lines": "Tiba-tiba, gemerisik di semak-semak mengungkapkan sekelompok Goblin, mata mereka berkilat dengan niat jahat!"}
         ],
-        "outro_win": [{"speaker": "narrator", "lines": "The Goblins scatter in defeat. A small victory, but your quest has just begun."}],
-        "outro_lose": [{"speaker": "narrator", "lines": "Overwhelmed by the Goblins... You must gather your strength and try again."}]
+        "outro_win": [{"speaker": "narrator", "lines": "Para Goblin lari kocar-kacir dalam kekalahan. Kemenangan kecil, tapi pencarianmu baru saja dimulai."}],
+        "outro_lose": [{"speaker": "narrator", "lines": "Kewalahan oleh para Goblin... Kau harus mengumpulkan kekuatanmu dan mencoba lagi."}]
     },
     2: {
         "name": "Chapter 2: The Stone Sentinel", "opponent_id": "golem",
         "background_image_path": "assets/images/background/BG2.png",
         "dialogue_sequence": [
-            {"speaker": "narrator", "lines": "To proceed, you must pass the ancient proving grounds, now guarded by reanimated constructs."},
-            {"speaker": "narrator", "lines": "A colossal Stone Golem, its form crackling with arcane energy, blocks your path. It seems an impassable guardian."}
+            {"speaker": "narrator", "lines": "Untuk melanjutkan, kau harus melewati tempat pembuktian kuno, yang sekarang dijaga oleh konstruksi yang dihidupkan kembali."},
+            {"speaker": "narrator", "lines": "Golem Batu raksasa, wujudnya berderak dengan energi misterius, menghalangi jalanmu. Tampaknya ia adalah penjaga yang tak dapat dilewati."}
         ],
-        "outro_win": [{"speaker": "narrator", "lines": "The mighty Golem crumbles to inert stone! The way forward is clear."}],
-        "outro_lose": [{"speaker": "narrator", "lines": "The Golem's sheer power is too much to overcome this time."}]
+        "outro_win": [{"speaker": "narrator", "lines": "Golem perkasa itu hancur menjadi batu tak bernyawa! Jalan ke depan telah terbuka."}],
+        "outro_lose": [{"speaker": "narrator", "lines": "Kekuatan Golem yang luar biasa terlalu berat untuk diatasi kali ini."}]
     },
     3: {
         "name": "Chapter 3: Dance of Shadows", "opponent_id": "assasin",
         "background_image_path": "assets/images/background/background.jpeg",
         "dialogue_sequence": [
-            {"speaker": "narrator", "lines": "As you venture deeper, a chilling presence is felt. A figure emerges from the shadows - an Assassin."},
-            {"speaker": "warrior", "lines": "Who are you that lurks in darkness? State your purpose!"},
+            {"speaker": "narrator", "lines": "Saat kau menjelajah lebih dalam, kehadiran yang mengerikan terasa. Sesosok muncul dari bayang-bayang - seorang Assassin (Pembunuh Bayaran)."},
+            {"speaker": "warrior", "lines": "Siapa kau yang bersembunyi dalam kegelapan? Sebutkan tujuanmu!"},
             {"speaker": "assasin", "lines": external_assassin_dialogs[0]}, {"speaker": "assasin", "lines": external_assassin_dialogs[1]},
-            {"speaker": "warrior", "lines": "If silence is your answer, then our blades will do the talking!"}
+            {"speaker": "warrior", "lines": "Jika diam adalah jawabanmu, maka pedang kita yang akan berbicara!"}
         ],
         "outro_win": [
             {"speaker": "assasin", "lines": external_assassin_dialogs[2]}, {"speaker": "assasin", "lines": external_assassin_dialogs[3]},
-            {"speaker": "narrator", "lines": "The Assassin speaks in riddles and vanishes as quickly as they appeared, leaving you to ponder their words."}],
+            {"speaker": "narrator", "lines": "Assassin itu berbicara dalam teka-teki dan menghilang secepat kemunculannya, meninggalkanmu untuk merenungkan kata-katanya."}],
         "outro_lose": [
             {"speaker": "assasin", "lines": external_assassin_dialogs[4]},
-            {"speaker": "narrator", "lines": "Too swift, too silent... The Assassin was a phantom you could not grasp."}]
+            {"speaker": "narrator", "lines": "Terlalu cepat, terlalu senyap... Assassin itu adalah hantu yang tak bisa kau tangkap."}]
     },
     4: {
         "name": "Chapter 4: The Fallen Monk, Stevanus", "opponent_id": "monk",
         "background_image_path": "assets/images/background/BG4.png",
         "dialogue_sequence": [
-            {"speaker": "narrator", "lines": "You have finally reached the Skyhold. Stevanus, the once revered Monk, guardian of the Celestial Seal, awaits. His aura is immense, tinged with sorrow and immense power."},
+            {"speaker": "narrator", "lines": "Kau akhirnya mencapai Skyhold. Stevanus, Biksu yang dulu dihormati, penjaga Segel Surgawi, menanti. Auranya sangat besar, diwarnai kesedihan dan kekuatan dahsyat."},
             {"speaker": "monk", "lines": external_monk_dialogs[0]}, {"speaker": "monk", "lines": external_monk_dialogs[1]},
-            {"speaker": "warrior", "lines": "Stevanus! I have come to face my destiny and restore balance to Aetherion!"},
+            {"speaker": "warrior", "lines": "Stevanus! Aku datang untuk menghadapi takdirku dan mengembalikan keseimbangan di Aetherion!"},
             {"speaker": "monk", "lines": external_monk_dialogs[2]}, {"speaker": "monk", "lines": external_monk_dialogs[3]},
             {"speaker": "monk", "lines": external_monk_dialogs[4]},
         ],
         "outro_win": [
-            {"speaker": "narrator", "lines": "Stevanus is defeated! His corrupted form dissipates, and his tormented spirit finally finds peace."},
-            {"speaker": "narrator", "lines": "You have mastered the Monk's techniques! The Monk is now UNLOCKED for Free Battle!"}],
-        "outro_lose": [{"speaker": "narrator", "lines": "Stevanus's power, even corrupted, is overwhelming. You are not yet ready to bear this burden."}]
+            {"speaker": "narrator", "lines": "Stevanus telah dikalahkan! Wujudnya yang rusak menghilang, dan jiwanya yang tersiksa akhirnya menemukan kedamaian."},
+            {"speaker": "narrator", "lines": "Kau telah menguasai teknik Biksu! Karakter Biksu sekarang TERBUKA untuk Pertarungan Bebas!"}],
+        "outro_lose": [{"speaker": "narrator", "lines": "Kekuatan Stevanus, bahkan yang rusak sekalipun, sungguh luar biasa. Kau belum siap menanggung beban ini."}]
     }
 }
 MAX_CHAPTERS = len(lore_chapters_data)
