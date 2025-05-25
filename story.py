@@ -44,6 +44,7 @@ def draw_text(text, font, color, x, y):
     img = font.render(text, True, color)
     screen.blit(img, (x, y))
 
+
 def draw_bg():
     screen.blit(pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT)), (0, 0))
 
@@ -54,6 +55,12 @@ def draw_health_bar(health, x, y):
     pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 def show_dialogue(lines):
+    try:
+        pygame.mixer.music.load("assets/audio/story.wav")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1, 0.0, 5000)
+    except pygame.error as e:
+        print(f"Error loading battle music: {e}")
     for line in lines:
         screen.fill((0, 0, 0))
         draw_text(line, font_small,WHITE,20,SCREEN_HEIGHT // 2)
@@ -70,6 +77,7 @@ def wait_for_key():
                 return False
             if event.type == pygame.KEYDOWN:
                 return True
+
     return True
 
 # fighter1_data = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
