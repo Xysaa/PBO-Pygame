@@ -1,5 +1,6 @@
 import pygame
 from abc import ABC, abstractmethod
+import random
 
 class Character(ABC):
     def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound, screen_height, is_bot=False):
@@ -15,7 +16,7 @@ class Character(ABC):
         self._sprite_sheet = sprite_sheet
         self._animation_steps = animation_steps
         self._animation_list = self._load_images()
-        self._action = 0  # 0:idle, 1:run, 2:jump, 3:attack1, 4:attack2, 5:hit, 6:death
+        self._action = 0
         self._frame_index = 0
         self._image = self._animation_list[self._action][self._frame_index]
         self._update_time = pygame.time.get_ticks()
@@ -49,12 +50,12 @@ class Character(ABC):
 
     def _load_images(self):
         animation_list = []
-        for y, animation in enumerate(self._animation_steps):
+        for y_idx, animation in enumerate(self._animation_steps): # Renamed y to y_idx
             temp_img_list = []
-            for x in range(animation):
+            for x_idx in range(animation):
                 img = self._sprite_sheet.subsurface(
-                    x * self._frame_width,
-                    y * self._frame_height,
+                    x_idx * self._frame_width,
+                    y_idx * self._frame_height,
                     self._frame_width,
                     self._frame_height
                 )
@@ -68,7 +69,7 @@ class Character(ABC):
     
     def reset(self):
         self._rect.x = self.initial_x
-        self._rect.y = self.initial_y
+        self._rect.bottom = self._screen_height - 110
         self._health = 100
         self._alive = True
         self._action = 0
@@ -80,16 +81,15 @@ class Character(ABC):
         self._jump = False
         self._vel_y = 0
         self._hit = False
+
     def move(self, screen_width, screen_height, surface, target, round_over):
         SPEED = 10
         GRAVITY = 2
         dx, dy = 0, 0
         self._running = False
-        self._attack_type = 0
 
         keys = pygame.key.get_pressed()
         if not self._attacking and self._alive and not round_over:
-            # Player 1 controls
             if self._player == 1:
                 if keys[pygame.K_a]:
                     dx = -SPEED
@@ -109,23 +109,55 @@ class Character(ABC):
                     if keys[pygame.K_e]:
                         self._attack_type = 3
                          
-            # Player 2 or Bot controls
             if self._player == 2:
                 if self._is_bot:
-                    # Simple bot logic
-                    if target.rect.centerx < self._rect.centerx:
-                        dx = -SPEED
+                    # --- Penyesuaian Parameter Bot ---
+                    BOT_ATTACK_RANGE = 100  # Sedikit dikurangi dari 130
+                    BOT_MIN_ENGAGE_DISTANCE = BOT_ATTACK_RANGE * 0.7
+                    BOT_JUMP_CHANCE = 0.015 # Sedikit dikurangi dari 0.018
+                    BOT_JUMP_IF_TARGET_HIGHER_BONUS = 0.12 # Sedikit dikurangi
+                    BOT_REPOSITION_CHANCE_WHEN_CLOSE_COOLDOWN = 0.15
+                    BOT_HESITATION_CHANCE = 0.25 # Peluang 25% bot ragu-ragu untuk menyerang
+
+                    distance_to_target_x = target.rect.centerx - self._rect.centerx
+                    abs_distance_to_target_x = abs(distance_to_target_x)
+
+                    if abs_distance_to_target_x < BOT_ATTACK_RANGE and self._attack_cooldown == 0 and target.alive:
+                        # Tambahkan logika hesitation
+                        if not (random.random() < BOT_HESITATION_CHANCE): # Jika tidak ragu-ragu
+                            self.attack(target)
+                            if isinstance(self, Warrior):
+                                self._attack_type = random.choice([1, 2, 3]) 
+                            elif isinstance(self, Mobs):
+                                self._attack_type = 1
+                            else:
+                                self._attack_type = 1
+                        # else: bot ragu-ragu, tidak menyerang frame ini
+                    
+                    if abs_distance_to_target_x > BOT_MIN_ENGAGE_DISTANCE:
+                        if distance_to_target_x < 0:
+                            dx = -SPEED
+                        else:
+                            dx = SPEED
                         self._running = True
-                    elif target.rect.centerx > self._rect.centerx:
-                        dx = SPEED
-                        self._running = True
-                    if target.rect.centery < self._rect.centery and not self._jump:
-                        self._vel_y = -30
-                        self._jump = True
-                    if abs(self._rect.centerx - target.rect.centerx) < 100 and self._attack_cooldown == 0:
-                        self.attack(target)
-                        self._attack_type = 1
-                else:
+                    elif abs_distance_to_target_x < BOT_ATTACK_RANGE / 2 and self._attack_cooldown > 0:
+                        if random.random() < BOT_REPOSITION_CHANCE_WHEN_CLOSE_COOLDOWN: 
+                            dx = random.choice([-SPEED / 2, SPEED / 2])
+                            self._running = True
+                        else:
+                            self._running = False
+                    else:
+                        self._running = False
+                    
+                    if not self._jump and target.alive:
+                        current_jump_chance = BOT_JUMP_CHANCE
+                        if target.rect.bottom < self._rect.bottom - self._rect.height * 0.6 :
+                             current_jump_chance += BOT_JUMP_IF_TARGET_HIGHER_BONUS
+
+                        if random.random() < current_jump_chance:
+                            self._vel_y = -30 
+                            self._jump = True
+                else: 
                     if keys[pygame.K_LEFT]:
                         dx = -SPEED
                         self._running = True
@@ -143,29 +175,28 @@ class Character(ABC):
                             self._attack_type = 2
                         if keys[pygame.K_j]:
                             self._attack_type = 3
-        # Apply gravity
+
         self._vel_y += GRAVITY
         dy += self._vel_y
-        # Boundaries
-        if self._rect.left + dx < 20:
-            dx =20-self._rect.left
+        if self._rect.left + dx < 0:
+            dx = -self._rect.left
         if self._rect.right + dx > screen_width:
             dx = screen_width - self._rect.right
         if self._rect.bottom + dy > screen_height - 110:
             self._vel_y = 0
             self._jump = False
             dy = screen_height - 110 - self._rect.bottom
-        # Face each other
-        self._flip = target.rect.centerx < self._rect.centerx
-        # Cooldown
+        if target.alive:
+          self._flip = target.rect.centerx < self._rect.centerx
         if self._attack_cooldown > 0:
             self._attack_cooldown -= 1
-        # Update pos
         self._rect.x += dx
         self._rect.y += dy
 
+    @abstractmethod
     def update(self):
         pass 
+    @abstractmethod
     def update_action(self, new_action):
         pass
     @abstractmethod
@@ -203,7 +234,7 @@ class Warrior(Character):
         else:
             self.update_action(0)
 
-        animation_cooldown = 50
+        animation_cooldown = 60
         self._image = self._animation_list[self._action][self._frame_index]
         if pygame.time.get_ticks() - self._update_time > animation_cooldown:
             self._frame_index += 1
@@ -213,13 +244,15 @@ class Warrior(Character):
                 self._frame_index = len(self._animation_list[self._action]) - 1
             else:
                 self._frame_index = 0
-                if self._action in (3, 4, 5):
+                if self._action in (3, 4, 5): # Jika selesai serangan
                     self._attacking = False
-                    self._attack_cooldown = 20
-                if self._action == 6:
+                    self._attack_cooldown = 25 # Cooldown dasar
+                    if self._is_bot:
+                        self._attack_cooldown += 15 # Cooldown tambahan untuk bot (misal: 15 frame)
+                if self._action == 6: # Jika selesai kena hit
                     self._hit = False
-                    self._attacking = False
-                    self._attack_cooldown = 20
+                    self._attack_cooldown = 10
+
 
     def update_action(self, new_action):
         if new_action != self._action:
@@ -231,33 +264,99 @@ class Warrior(Character):
         if self._attack_cooldown == 0:
             self._attacking = True
             self._attack_sound.play()
-            attacking_rect = pygame.Rect(
-                self._rect.centerx - (2 * self._rect.width * self._flip),
-                self._rect.y,
-                2 * self._rect.width,
-                self._rect.height
-            )
-            if attacking_rect.colliderect(target.rect):
-                target._health -= 10
+            attack_width = self._rect.width * 1.8
+            if self._flip:
+                attacking_rect = pygame.Rect(
+                    self._rect.left - attack_width, self._rect.y,
+                    attack_width, self._rect.height
+                )
+            else:
+                attacking_rect = pygame.Rect(
+                    self._rect.right, self._rect.y,
+                    attack_width, self._rect.height
+                )
+
+            if attacking_rect.colliderect(target.rect) and target.alive:
+                damage = 10 
+                if self._attack_type == 2: damage = 12
+                if self._attack_type == 3: damage = 15
+                
+                if self._is_bot:
+                    damage *= 0.8 
+                    damage = int(damage)
+                
+                target._health -= damage
                 target._hit = True
 
 
-class Wizard(Character):
+class Wizard(Character): # Misal Wizard juga bisa jadi Bot
+    def update(self):
+        if self._health <= 0:
+            self._health = 0
+            self._alive = False
+            self.update_action(6)
+        elif self._hit:
+            self.update_action(5)
+        elif self._attacking:
+            if self._attack_type == 1:
+                self.update_action(3) 
+            elif self._attack_type == 2:
+                self.update_action(4)
+        elif self._jump:
+            self.update_action(2)
+        elif self._running:
+            self.update_action(1)
+        else:
+            self.update_action(0)
+
+        animation_cooldown = 70 
+        self._image = self._animation_list[self._action][self._frame_index]
+        if pygame.time.get_ticks() - self._update_time > animation_cooldown:
+            self._frame_index += 1
+            self._update_time = pygame.time.get_ticks()
+        if self._frame_index >= len(self._animation_list[self._action]):
+            if not self._alive:
+                self._frame_index = len(self._animation_list[self._action]) - 1
+            else:
+                self._frame_index = 0
+                if self._action in (3,4): # Jika selesai serangan
+                    self._attacking = False
+                    self._attack_cooldown = 30  # Cooldown dasar
+                    if self._is_bot:
+                        self._attack_cooldown += 20 # Cooldown tambahan untuk bot
+                if self._action == 5: # Jika selesai kena hit
+                    self._hit = False
+                    self._attacking = False
+                    self._attack_cooldown = 15
+
+    def update_action(self, new_action):
+        if new_action != self._action:
+            self._action = new_action
+            self._frame_index = 0
+            self._update_time = pygame.time.get_ticks()
+
     def attack(self, target):
         if self._attack_cooldown == 0:
             self._attacking = True
             self._attack_sound.play()
-            attacking_rect = pygame.Rect(
-                self._rect.centerx - (2 * self._rect.width * self._flip),
-                self._rect.y,
-                2 * self._rect.width,
-                self._rect.height
-            )
-            if attacking_rect.colliderect(target.rect):
-                target._health -= 15
-                target._hit = True
-class Mobs(Character):
+            attack_width = self._rect.width * 2 
+            if self._flip: 
+                attacking_rect = pygame.Rect(self._rect.left - attack_width, self._rect.y, attack_width, self._rect.height)
+            else: 
+                attacking_rect = pygame.Rect(self._rect.right, self._rect.y, attack_width, self._rect.height)
+            
+            if attacking_rect.colliderect(target.rect) and target.alive:
+                damage = 15 
+                if self._attack_type == 2: damage = 20
+                
+                if self._is_bot:
+                    damage *= 0.8 
+                    damage = int(damage)
 
+                target._health -= damage
+                target._hit = True
+
+class Mobs(Character):
     def update(self):
         if self._health <= 0:
             self._health = 0
@@ -266,19 +365,13 @@ class Mobs(Character):
         elif self._hit:
             self.update_action(3)
         elif self._attacking:
-            if self._attack_type == 1:
-                self.update_action(2)
-            elif self._attack_type == 2:
-                self.update_action(2)
-            elif self._attack_type == 3:
-                self.update_action (2)
-
+            self.update_action(2)
         elif self._running:
             self.update_action(1)
         else:
             self.update_action(0)
 
-        animation_cooldown = 50
+        animation_cooldown = 80
         self._image = self._animation_list[self._action][self._frame_index]
         if pygame.time.get_ticks() - self._update_time > animation_cooldown:
             self._frame_index += 1
@@ -288,10 +381,12 @@ class Mobs(Character):
                 self._frame_index = len(self._animation_list[self._action]) - 1
             else:
                 self._frame_index = 0
-                if self._action in (2,2,2):
+                if self._action == 2: # Jika selesai serangan
                     self._attacking = False
-                    self._attack_cooldown = 20
-                if self._action == 3:
+                    self._attack_cooldown = 35 # Cooldown dasar
+                    if self._is_bot:
+                        self._attack_cooldown += 25 # Cooldown tambahan untuk bot
+                if self._action == 3: # Jika selesai kena hit
                     self._hit = False
                     self._attacking = False
                     self._attack_cooldown = 20
@@ -301,18 +396,23 @@ class Mobs(Character):
             self._action = new_action
             self._frame_index = 0
             self._update_time = pygame.time.get_ticks()
+
     def attack(self, target):
         if self._attack_cooldown == 0:
             self._attacking = True
             self._attack_sound.play()
-            attacking_rect = pygame.Rect(
-                self._rect.centerx - (2 * self._rect.width * self._flip),
-                self._rect.y,
-                2 * self._rect.width,
-                self._rect.height
-            )
-            if attacking_rect.colliderect(target.rect):
-                target._health -= 9
+            attack_width = self._rect.width * 1.5 
+            if self._flip:
+                attacking_rect = pygame.Rect(self._rect.left - attack_width, self._rect.y, attack_width, self._rect.height)
+            else:
+                attacking_rect = pygame.Rect(self._rect.right, self._rect.y, attack_width, self._rect.height)
+
+            if attacking_rect.colliderect(target.rect) and target.alive:
+                damage = 9
+                
+                if self._is_bot:
+                    damage *= 0.8 
+                    damage = int(damage)
+
+                target._health -= damage
                 target._hit = True
-
-
