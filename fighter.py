@@ -277,9 +277,9 @@ class Warrior(Character):
                 )
 
             if attacking_rect.colliderect(target.rect) and target.alive:
-                damage = 10 
-                if self._attack_type == 2: damage = 12
-                if self._attack_type == 3: damage = 15
+                damage = 12 
+                if self._attack_type == 2: damage = 14
+                if self._attack_type == 3: damage = 20
                 
                 if self._is_bot:
                     damage *= 0.8 

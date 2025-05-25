@@ -1,7 +1,8 @@
 import pygame
 import os
-
+from pygame import mixer
 # Initialize Pygame
+mixer.init()
 pygame.init()
 
 # Initial window size
@@ -66,7 +67,11 @@ def run_credit():
     except Exception as e:
         print(f"Error loading background image: {e}")
         background_img_original = None
-
+    try:
+        pygame.mixer.music.load("assets/audio/music_main.wav")
+        pygame.mixer.music.set_volume(0.7)
+        pygame.mixer.music.play(-1, 0.0, 5000)
+    except pygame.error as e: print(f"Error loading main menu music: {e}")
     clock = pygame.time.Clock()
 
     running = True
