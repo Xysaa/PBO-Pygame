@@ -10,6 +10,7 @@ CHARACTER_DATA = {
         "animation_steps": [8, 8, 26, 11, 19, 18, 6, 13],
         "sound_path": "assets/audio/sword.wav",
         "image_path": "assets/images/fire_warrior/fireWar_spritesheets1.png",
+        "face_path" : "assets/images/fire_warrior/face.png"
     },
     "wizard": {
         "size": [288, 128],
@@ -50,6 +51,7 @@ CHARACTER_DATA = {
         "animation_steps": [8,8,6,8,18,30,6,19],
         "sound_path": "assets/audio/sword.wav",
         "image_path": "assets/images/assasin/assasin_sprites.png",
+        "face_path" : "assets/images/assasin/face.png"
     },
 
     "monk": {
@@ -59,6 +61,7 @@ CHARACTER_DATA = {
         "animation_steps": [6,8,6,6,9,25,6,18],
         "sound_path": "assets/audio/sword.wav",
         "image_path": "assets/images/monk/monk_spritesheets.png",
+        "face_path" : "assets/images/monk/face.png"
     },
 
 }
