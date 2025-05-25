@@ -17,29 +17,23 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
 
     intro_count = 3
     last_count_update = pygame.time.get_ticks()
-    score = [0, 0]
+    score = [0, 0] # Tidak digunakan di story mode, tapi tetap ada untuk free battle
     round_over = False
-    ROUND_OVER_COOLDOWN = 2000
+    ROUND_OVER_COOLDOWN = 2000 # Waktu sebelum battle berakhir setelah KO
     round_over_time = 0
 
     paused = False
     pause_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 40, 10, 80, 40)
     pause_text_render = font_med.render("||", True, BLACK)
 
-    # <<< PERUBAHAN DIMULAI DI SINI >>>
-    # Render teks terlebih dahulu
     resume_text_render = font_large.render("Resume", True, WHITE)
     main_menu_text_render = font_large.render("Main Menu", True, WHITE)
 
-    # Dapatkan Rect dari teks dan atur posisinya (misal: tengah layar)
-    # Sesuaikan nilai Y (misal: 280 dan 360) untuk mengatur jarak vertikal
     resume_button_rect = resume_text_render.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
     main_menu_button_rect = main_menu_text_render.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 40))
-    # <<< PERUBAHAN SELESAI DI SINI >>>
     
     return_to_main_menu = False
     
-
     try:
         pygame.mixer.music.load("assets/audio/music.mp3")
         pygame.mixer.music.set_volume(0.5)
@@ -54,12 +48,14 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                pygame.mixer.music.stop() # Hentikan musik jika menutup window
+                # return True # Langsung keluar bisa jadi opsi, atau biarkan loop selesai
+                run = False # Agar bisa return return_to_main_menu
+                return_to_main_menu = True # Asumsikan keluar via X = kembali ke menu
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if paused:
-                        # Gunakan Rect yang sudah diatur untuk deteksi klik
                         if resume_button_rect.collidepoint(mouse_pos):
                             paused = False
                             pygame.mixer.music.unpause()
@@ -71,12 +67,24 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
                         if not round_over and intro_count <= 0 and pause_button_rect.collidepoint(mouse_pos):
                             paused = True
                             pygame.mixer.music.pause()
+            if event.type == pygame.KEYDOWN: # Tambahkan event keydown untuk escape dari pause
+                if event.key == pygame.K_ESCAPE:
+                    if paused:
+                        paused = False
+                        pygame.mixer.music.unpause()
+                    # else: # Jika tidak dipause, escape tidak melakukan apa-apa di battle screen, kecuali dihandle di main menu
+                    #     run = False # Contoh jika mau keluar dari battle dengan ESC
+                    #     return_to_main_menu = True
+
 
         draw_bg()
         draw_health_bar(fighter_1.health, 20, 20)
         draw_health_bar(fighter_2.health, 580, 20)
+        
+        # Skor hanya relevan untuk non-story mode, tapi tidak masalah tergambar
         draw_text(f"P1: {score[0]}", font_small, RED, 20, 60)
         draw_text(f"P2: {score[1]}", font_small, RED, 580, 60)
+        
         pygame.draw.rect(screen, GREY, pause_button_rect)
         screen.blit(pause_text_render, (pause_button_rect.centerx - pause_text_render.get_width() // 2,
                                          pause_button_rect.centery - pause_text_render.get_height() // 2))
@@ -96,48 +104,46 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
 
             if not round_over:
                 if not fighter_1.alive:
-                    score[1] += 1
+                    score[1] += 1 # P2 scores
                     round_over = True
                     round_over_time = pygame.time.get_ticks()
                 elif not fighter_2.alive:
-                    score[0] += 1
+                    score[0] += 1 # P1 scores
                     round_over = True
                     round_over_time = pygame.time.get_ticks()
-            else:
-                screen.blit(victory_img, (360, 150))
+            else: # round_over is True
+                # Modifikasi: Jangan tampilkan victory_img jika is_story True
+                if not is_story:
+                    screen.blit(victory_img, (SCREEN_WIDTH // 2 - victory_img.get_width() // 2, SCREEN_HEIGHT // 3 - victory_img.get_height() // 2)) # Center image
+                
                 if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
-                    if is_story:
-                        run =False
-                    else:
+                    if is_story: # Jika mode cerita, akhiri pertarungan setelah cooldown
+                        run = False
+                    else: # Jika mode bebas, reset untuk ronde berikutnya
                         round_over = False
-                        intro_count = 3
+                        intro_count = 3 # Reset intro count untuk ronde baru
+                        # Reset fighter positions and health for a new round
                         fighter_1.reset()
                         fighter_2.reset()
-                    # fighter_1 = Warrior(1, 200, SCREEN_HEIGHT, False, [*warrior_data["size"], warrior_data["scale"], warrior_data["offset"]], warrior_assets["image"], warrior_data["animation_steps"], warrior_assets["sound"], SCREEN_HEIGHT,is_bot=False)    
-                    # fighter_2 = Wizard(2, 700, SCREEN_HEIGHT, True, [*wizard_data["size"],wizard_data["scale"], wizard_data["offset"]],wizard_assets["image"],wizard_data["animation_steps"],wizard_assets["sound"],SCREEN_HEIGHT, is_bot=False)
-                    #
+        
         fighter_1.draw(screen)
         fighter_2.draw(screen)
 
         if paused:
             overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 150))
+            overlay.fill((0, 0, 0, 150)) # Transparan overlay
             screen.blit(overlay, (0, 0))
 
-            # <<< PERUBAHAN GAMBAR TOMBOL >>>
-            # Gambar latar belakang menggunakan Rect teks
             pygame.draw.rect(screen, GREEN, resume_button_rect)
-            # Gambar teks di atas latar belakang (gunakan topleft dari Rect)
             screen.blit(resume_text_render, resume_button_rect.topleft)
 
-            # Gambar latar belakang menggunakan Rect teks
             pygame.draw.rect(screen, DARK_RED, main_menu_button_rect)
-            # Gambar teks di atas latar belakang
             screen.blit(main_menu_text_render, main_menu_button_rect.topleft)
-            # <<< AKHIR PERUBAHAN GAMBAR TOMBOL >>>
         
         pygame.display.update()
+        
+    # pygame.mixer.music.stop() # Hentikan musik setelah loop battle selesai, kecuali jika kembali ke menu utama dan musik menu berbeda
     return return_to_main_menu
+
 if __name__ == "__main__":
     pass
-
