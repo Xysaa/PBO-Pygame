@@ -1,57 +1,49 @@
 import pygame
 import os
 from pygame import mixer
-# Initialize Pygame
+
 mixer.init()
 pygame.init()
 
-# Initial window size
-
-
-# Colors
 hitam = (0, 0, 0)
 putih = (255, 255, 255)
 
-# Fonts
-font_judul = pygame.font.Font(None, 72)
-font_teks_besar = pygame.font.Font(None, 60)
-font_teks_kecil = pygame.font.Font(None, 30)
 
-# Credits text
+font_judul = pygame.font.Font("assets/fonts/turok.ttf", 72)
+font_teks_besar = pygame.font.Font("assets/fonts/turok.ttf", 60)
+font_teks_kecil = pygame.font.Font("assets/fonts/turok.ttf", 30)
+
 daftar_kredit = [
     "TERIMA KASIH TELAH BERMAIN!",
     " ",
     "Pengembang utama",
     "Daniel Calvin Simanjuntak",
     "Danang Ridho Laksono",
-    "Garis Raya Rabbani",
+    "Garis Rayya Rabbani",
     "Arrauf Setiawan Muhammad Jabar",
     "Stevanus Cahya anggara",
     " ",
     "Programmer",
     "Daniel Calvin Simanjuntak",
-    "Garis Raya Rabbani",
+    "Danang Ridho Laksono",
+    "Garis Rayya Rabbani",
     "Arrauf Setiawan Muhammad Jabar",
     "Stevanus Cahya anggara",
     " ",
     "Designer",
     "Daniel Calvin Simanjuntak",
     "Danang Ridho Laksono",
-    "Garis Raya Rabbani",
+    "Garis Rayya Rabbani",
     " ",
     "Sfx",
     "Stevanus Cahya Anggara",
-    "Garis Raya Rabbani",
+    "Garis Rayya Rabbani",
     " ",
     "Copyright (c) 2025 Kebelet Production",
 ]
 
-# Scroll position starts at bottom of screen
 
-
-# Scroll speed
-
-#jalankan c
+#jalankan credit 
 def run_credit():
     screen_width, screen_height = 1000, 600
     screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
@@ -61,7 +53,7 @@ def run_credit():
 
     kecepatan_gulir = 1
 
-# Load background image (replace with your actual image path
+
     try:
         background_img_original = pygame.image.load("assets/images/background/backgroundCreditScene.png").convert()
     except Exception as e:
@@ -84,23 +76,22 @@ def run_credit():
                 running = False
 
             elif event.type == pygame.VIDEORESIZE:
-                # Update screen size on resize
                 screen_width, screen_height = event.w, event.h
                 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 
-            # ketika esc ditekan akan kembali ke menu utama
+           
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
 
-        # Draw scaled background or fill black if no image
+       
         if background_img_original:
             scaled_bg = pygame.transform.smoothscale(background_img_original, (screen_width, screen_height))
             screen.blit(scaled_bg, (0, 0))
         else:
             screen.fill(hitam)
 
-        # Draw credit text, scrolling vertically
+    
         y_pos = y_kredit
         for teks in daftar_kredit:
             if teks:
@@ -116,10 +107,9 @@ def run_credit():
                 screen.blit(teks_render, teks_rect)
                 y_pos += teks_rect.height + 10
 
-        # Update credit scroll position
+        
         y_kredit -= kecepatan_gulir
 
-        # Reset scroll when all text is above screen
         if y_pos < 0:
             y_kredit = screen_height
 

@@ -3,11 +3,10 @@ import sys
 
 pygame.init()
 
-# Set up display
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Sprite Sheet Analyzer")
 
-# Load the sprite sheet
+
 try:
     sprite_sheet = pygame.image.load("assets/images/warrior/Sprites/warrior.png").convert_alpha()
     print(f"Successfully loaded sprite sheet")
@@ -17,7 +16,7 @@ except Exception as e:
     pygame.quit()
     sys.exit()
 
-# Let's try different sizes to see which one works
+
 test_sizes = [32, 48, 50, 60, 64, 80, 100, 120, 150, 162, 180, 200]
 animation_steps = [10, 8, 1, 7, 7, 3, 7]
 
@@ -29,14 +28,12 @@ def test_sprite_extraction(size):
     for y, steps in enumerate(animation_steps):
         for x in range(steps):
             try:
-                # Calculate coordinates
                 x_pos = x * size
                 y_pos = y * size
                 
-                # Check if these coordinates are within the sprite sheet
+                
                 if (x_pos + size <= sprite_sheet.get_width() and 
                     y_pos + size <= sprite_sheet.get_height()):
-                    # Try to extract subsurface
                     temp_img = sprite_sheet.subsurface(x_pos, y_pos, size, size)
                     success_count += 1
                 else:
@@ -49,7 +46,6 @@ def test_sprite_extraction(size):
     print(f"Results for size {size}: {success_count} successes, {fail_count} failures")
     return success_count, fail_count
 
-# Test all sizes
 best_size = None
 max_success = -1
 
@@ -70,14 +66,12 @@ if best_size:
 else:
     print("\nCould not determine optimal size, try manual inspection")
 
-# Main loop to keep window open
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
     
-    # Display the sprite sheet
     screen.fill((0, 0, 0))
     screen.blit(sprite_sheet, (50, 50))
     pygame.display.flip()

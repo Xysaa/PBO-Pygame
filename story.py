@@ -321,17 +321,8 @@ def main_story(start_new_game_flag=False):
             current_chapter_num += 1 # Lanjut ke chapter berikutnya
             game_state["current_chapter"] = current_chapter_num
             save_game_state(game_state)
-        else: # Jika pemain kalah
-            # Tidak lanjut ke chapter berikutnya, pemain harus mengulang (atau kembali ke menu)
-            # Loop akan berlanjut (jika ada mekanisme retry) atau keluar jika running_story_mode = False
-            # Untuk saat ini, jika kalah, pemain akan melihat pesan "DEFEAT!", dialog kalah, lalu jika ada mekanisme retry, chapter akan diulang.
-            # Jika tidak, dan ini adalah akhir dari loop (misal karena error atau tidak ada mekanisme retry eksplisit di sini selain dari menu utama),
-            # maka akan jatuh ke pesan akhir.
-            # Untuk sekarang, kita biarkan jika kalah, loop akan berhenti jika tidak ada mekanisme retry eksplisit di sini.
-            # Dan akan keluar untuk menampilkan final message (atau kembali ke menu utama).
-            # Jika ingin otomatis kembali ke menu utama setelah kalah dan dialog:
-            # return True
-            pass # Pemain akan kembali ke menu utama dari main.py setelah story loop selesai (atau jika ada mekanisme retry)
+        else: 
+            pass 
 
 
     final_message = []
@@ -350,16 +341,16 @@ def main_story(start_new_game_flag=False):
         draw_bg_story_cb() # Gunakan background terakhir yang aktif
         _play_dialogue_sequence_enhanced(draw_bg_story_cb, final_message)
 
-    if pygame.mixer.music.get_busy() and pygame.mixer.music.get_sound() == "assets/audio/story_dialogue.wav": # Hanya stop musik dialog
+    if pygame.mixer.music.get_busy(): # Hanya stop musik dialog
         pygame.mixer.music.stop()
-    return True # Selalu kembali ke menu utama setelah story selesai atau diinterupsi
+    running_story_mode = False
 
 if __name__ == "__main__":
     SAVE_FILE_NAME = "savegame.json"
     if not os.path.exists(SAVE_FILE_NAME):
        print(f"'{SAVE_FILE_NAME}' not found. Creating default save state for testing story.py.")
        save_game_state(DEFAULT_GAME_STATE.copy())
-    # ... (sisa kode placeholder untuk assets jika diperlukan untuk testing) ...
+
     main_story(start_new_game_flag=True) # Atau False untuk melanjutkan
     pygame.quit()
     exit()

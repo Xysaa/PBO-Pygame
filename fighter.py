@@ -4,7 +4,6 @@ import random
 
 class Character(ABC):
     def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound, screen_height, is_bot=False):
-        # Encapsulated attributes
         self._player = player
         self.initial_x=x 
         self.initial_y=y 
@@ -112,19 +111,18 @@ class Character(ABC):
             if self._player == 2:
                 if self._is_bot:
                     # --- Penyesuaian Parameter Bot ---
-                    BOT_ATTACK_RANGE = 100  # Sedikit dikurangi dari 130
+                    BOT_ATTACK_RANGE = 100  
                     BOT_MIN_ENGAGE_DISTANCE = BOT_ATTACK_RANGE * 0.7
-                    BOT_JUMP_CHANCE = 0.015 # Sedikit dikurangi dari 0.018
-                    BOT_JUMP_IF_TARGET_HIGHER_BONUS = 0.12 # Sedikit dikurangi
+                    BOT_JUMP_CHANCE = 0.015
+                    BOT_JUMP_IF_TARGET_HIGHER_BONUS = 0.12 
                     BOT_REPOSITION_CHANCE_WHEN_CLOSE_COOLDOWN = 0.15
-                    BOT_HESITATION_CHANCE = 0.25 # Peluang 25% bot ragu-ragu untuk menyerang
+                    BOT_HESITATION_CHANCE = 0.25 
 
                     distance_to_target_x = target.rect.centerx - self._rect.centerx
                     abs_distance_to_target_x = abs(distance_to_target_x)
 
                     if abs_distance_to_target_x < BOT_ATTACK_RANGE and self._attack_cooldown == 0 and target.alive:
-                        # Tambahkan logika hesitation
-                        if not (random.random() < BOT_HESITATION_CHANCE): # Jika tidak ragu-ragu
+                        if not (random.random() < BOT_HESITATION_CHANCE): 
                             self.attack(target)
                             if isinstance(self, Warrior):
                                 self._attack_type = random.choice([1, 2, 3]) 
@@ -132,7 +130,7 @@ class Character(ABC):
                                 self._attack_type = 1
                             else:
                                 self._attack_type = 1
-                        # else: bot ragu-ragu, tidak menyerang frame ini
+                    
                     
                     if abs_distance_to_target_x > BOT_MIN_ENGAGE_DISTANCE:
                         if distance_to_target_x < 0:
@@ -248,7 +246,7 @@ class Warrior(Character):
                     self._attacking = False
                     self._attack_cooldown = 25 # Cooldown dasar
                     if self._is_bot:
-                        self._attack_cooldown += 15 # Cooldown tambahan untuk bot (misal: 15 frame)
+                        self._attack_cooldown += 15 # Cooldown tambahan untuk bot 
                 if self._action == 6: # Jika selesai kena hit
                     self._hit = False
                     self._attack_cooldown = 10
