@@ -4,12 +4,12 @@ import story # story.py
 import freebattle
 import credit
 from pygame import mixer
-from save_data import load_game_state, DEFAULT_GAME_STATE # For story submenu logic
+from save_data import load_game_state, DEFAULT_GAME_STATE 
 
-# Initialize save file if it doesn't exist at the very start of the game
+
 import os
-from save_data import save_game_state as init_save_main # Alias for clarity
-SAVE_FILE_NAME = "game_save_data.json" # Match this with save_data.py
+from save_data import save_game_state as init_save_main 
+SAVE_FILE_NAME = "game_save_data.json" 
 if not os.path.exists(SAVE_FILE_NAME):
     init_save_main(DEFAULT_GAME_STATE.copy())
     print(f"Initialized {SAVE_FILE_NAME} from main.py")

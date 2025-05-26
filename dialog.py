@@ -1,8 +1,5 @@
-# assets/Dialog/dialog.py
 import pygame
 
-# Load images for character dialog
-# Dialog lines for each character
 monk_dialog = [
     "Kau telah melalui cobaan berat, pejuang.",
     "Namun, kekuatan saja tidak cukup untuk menutup celah ke Void.",

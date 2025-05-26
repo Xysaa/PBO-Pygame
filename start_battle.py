@@ -77,11 +77,7 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
                     if paused:
                         paused = False
                         pygame.mixer.music.unpause()
-                    # Jika ingin ESC mengakhiri battle saat tidak pause (opsional)
-                    # elif not game_over_fb: # Hanya jika game belum berakhir
-                    #     pygame.mixer.music.stop()
-                    #     run = False
-                    #     return_to_main_menu = True
+                    
 
 
         draw_bg()
@@ -176,7 +172,4 @@ def start_battle(SCREEN_WIDTH,SCREEN_HEIGHT,screen, draw_bg, font_small, font_me
     return return_to_main_menu
 
 if __name__ == "__main__":
-    # Bagian ini biasanya tidak dijalankan jika start_battle.py diimpor
-    # Jika ingin menguji file ini secara mandiri, Anda perlu menyediakan argumen yang dibutuhkan.
-    print("start_battle.py dijalankan sebagai script utama (biasanya diimpor).")
     pass
