@@ -1,11 +1,10 @@
 # story.py
-# story.py
 import pygame
 from pygame import mixer
-from fighter import Warrior, Mobs 
-from character_data import CHARACTER_DATA 
-from character_assets import load_character_assets 
-from start_battle import start_battle as run_battle 
+from fighter import Warrior, Mobs
+from character_data import CHARACTER_DATA
+from character_assets import load_character_assets
+from start_battle import start_battle as run_battle
 from save_data import load_game_state, save_game_state, reset_story_progress, DEFAULT_GAME_STATE
 import os
 
@@ -41,13 +40,11 @@ except pygame.error as e:
 bg_image_default_scaled = pygame.transform.scale(bg_image_default, (SCREEN_WIDTH, SCREEN_HEIGHT))
 active_bg_surface = bg_image_default_scaled
 
-# Victory image tidak lagi digunakan oleh story.py secara langsung untuk notifikasi, tapi start_battle masih menerimanya
 try:
     victory_img_placeholder = pygame.image.load("assets/images/icons/victory.png").convert_alpha()
 except pygame.error as e:
     print(f"Warning: Victory icon not found: {e}. Creating placeholder.")
     victory_img_placeholder = pygame.Surface((100,50)); victory_img_placeholder.fill(GREEN)
-
 
 clock = pygame.time.Clock()
 
@@ -56,14 +53,12 @@ font_med = pygame.font.Font("assets/fonts/turok.ttf", 40)
 font_small = pygame.font.Font("assets/fonts/turok.ttf", 30)
 font_dialog_text = pygame.font.Font("assets/fonts/turok.ttf", 24)
 font_speaker_name = pygame.font.Font("assets/fonts/turok.ttf", 26)
-# Font untuk pesan Victory/Defeat
 font_outcome = pygame.font.Font("assets/fonts/turok.ttf", 100)
 
-
 player_fighter_story = Warrior(1, 200, SCREEN_HEIGHT, False,
-                         [*CHARACTER_DATA["warrior"]["size"], CHARACTER_DATA["warrior"]["scale"], CHARACTER_DATA["warrior"]["offset"]],
-                         assets["warrior"]["image"], CHARACTER_DATA["warrior"]["animation_steps"],
-                         assets["warrior"]["sound"], SCREEN_HEIGHT, is_bot=False)
+                               [*CHARACTER_DATA["warrior"]["size"], CHARACTER_DATA["warrior"]["scale"], CHARACTER_DATA["warrior"]["offset"]],
+                               assets["warrior"]["image"], CHARACTER_DATA["warrior"]["animation_steps"],
+                               assets["warrior"]["sound"], SCREEN_HEIGHT, is_bot=False)
 
 story_opponents = {
     "goblin": Mobs(2, 700, SCREEN_HEIGHT, True,
@@ -79,9 +74,9 @@ story_opponents = {
                        assets["assasin"]["image"], CHARACTER_DATA["assasin"]["animation_steps"],
                        assets["assasin"]["sound"], SCREEN_HEIGHT, is_bot=True),
     "monk": Warrior(2, 700, SCREEN_HEIGHT, True,
-                       [*CHARACTER_DATA["monk"]["size"], CHARACTER_DATA["monk"]["scale"], CHARACTER_DATA["monk"]["offset"]],
-                       assets["monk"]["image"], CHARACTER_DATA["monk"]["animation_steps"],
-                       assets["monk"]["sound"], SCREEN_HEIGHT, is_bot=True)
+                    [*CHARACTER_DATA["monk"]["size"], CHARACTER_DATA["monk"]["scale"], CHARACTER_DATA["monk"]["offset"]],
+                    assets["monk"]["image"], CHARACTER_DATA["monk"]["animation_steps"],
+                    assets["monk"]["sound"], SCREEN_HEIGHT, is_bot=True)
 }
 
 lore_chapters_data = {
@@ -146,12 +141,21 @@ TEXT_AREA_RECT = pygame.Rect( DIALOG_BOX_RECT.x + TEXT_AREA_MARGIN_X, DIALOG_BOX
 FACE_POS = (DIALOG_BOX_RECT.x + 15, DIALOG_BOX_RECT.y + (DIALOG_BOX_RECT.height - 110) // 2)
 FACE_SIZE = (110, 110)
 
+# --- NEW: State variable for music ---
+current_music_file = None
+dialogue_music_path = "assets/audio/story_dialogue.wav"
+# --- END NEW ---
+
 def show_dialogue_box_enhanced(current_screen_content_func, text_segment, speaker_id_str, speaker_face_surf):
+    global current_music_file # <<< ADDED global declaration
     try:
-        if not pygame.mixer.music.get_busy() or pygame.mixer.music.get_pos() == -1: # Cek jika musik tidak sibuk atau sudah selesai
-            pygame.mixer.music.load("assets/audio/story_dialogue.wav")
+        # --- MODIFIED: Check if dialogue music should play ---
+        if not pygame.mixer.music.get_busy() or current_music_file != dialogue_music_path:
+            pygame.mixer.music.load(dialogue_music_path)
             pygame.mixer.music.set_volume(0.4)
             pygame.mixer.music.play(-1, 0.0, 1000) # Fade in
+            current_music_file = dialogue_music_path # <<< SET State
+        # --- END MODIFIED ---
     except pygame.error as e: print(f"Error handling dialogue music: {e}")
 
     words = text_segment.split(' '); wrapped_lines = []; current_line = ""
@@ -170,11 +174,15 @@ def show_dialogue_box_enhanced(current_screen_content_func, text_segment, speake
             if event.type == pygame.QUIT: pygame.quit(); exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if pygame.mixer.music.get_busy(): pygame.mixer.music.fadeout(500)
+                    # --- MODIFIED: Clear state on ESC ---
+                    if pygame.mixer.music.get_busy() and current_music_file == dialogue_music_path:
+                         pygame.mixer.music.fadeout(500)
+                         current_music_file = None # <<< CLEAR State
+                    # --- END MODIFIED ---
                     return False # Sinyal untuk kembali ke menu
                 current_page_index += 1
                 if current_page_index >= num_pages: waiting_for_page_input = False
-        
+
         current_screen_content_func() # Gambar latar belakang chapter saat ini
         dialog_box_surf = pygame.Surface(DIALOG_BOX_RECT.size, pygame.SRCALPHA); dialog_box_surf.fill(DIALOG_BOX_COLOR)
         screen.blit(dialog_box_surf, DIALOG_BOX_RECT.topleft)
@@ -183,7 +191,7 @@ def show_dialogue_box_enhanced(current_screen_content_func, text_segment, speake
         if speaker_face_surf:
             try: screen.blit(pygame.transform.scale(speaker_face_surf, FACE_SIZE), FACE_POS)
             except Exception as e: print(f"Error blitting face: {e}")
-        
+
         speaker_name_capitalized = speaker_id_str.capitalize() if speaker_id_str != "narrator" else ""
         name_surf = font_speaker_name.render(speaker_name_capitalized, True, DIALOG_SPEAKER_NAME_COLOR)
         screen.blit(name_surf, (TEXT_AREA_RECT.x, DIALOG_BOX_RECT.y + 5))
@@ -219,10 +227,9 @@ def draw_health_bar_story_cb(health, x, y):
     pygame.draw.rect(screen, DARK_BlUE, (x, y, 400 * ratio, 30))
 def draw_text_for_battle_cb(text, font, color, x, y): screen.blit(font.render(text, True, color), (x, y))
 
-# --- Fungsi baru untuk menampilkan pesan Victory/Defeat ---
 def show_battle_outcome_message(message_text, duration_ms):
     global screen, font_outcome, clock, active_bg_surface, SCREEN_WIDTH, SCREEN_HEIGHT, YELLOW, RED, BLACK
-    
+
     start_time = pygame.time.get_ticks()
     text_color = YELLOW if message_text == "VICTORY!" else RED
     message_surf = font_outcome.render(message_text, True, text_color)
@@ -239,46 +246,50 @@ def show_battle_outcome_message(message_text, duration_ms):
 
         draw_bg_story_cb() # Gambar background chapter saat ini
         screen.blit(message_surf, message_rect) # Tampilkan pesan
-        
+
         pygame.display.flip()
         clock.tick(30)
-# --- Akhir fungsi baru ---
 
 def start_story_battle_flow(player, opponent_instance):
+    global current_music_file # <<< ADDED global declaration
     player.reset(); opponent_instance.reset()
-    if pygame.mixer.music.get_busy(): pygame.mixer.music.fadeout(1000) # Fade out musik dialog jika ada
+    # --- MODIFIED: Clear state on fadeout ---
+    if pygame.mixer.music.get_busy():
+        pygame.mixer.music.fadeout(1000) # Fade out musik dialog jika ada
+        current_music_file = None # <<< CLEAR State
+    # --- END MODIFIED ---
 
-    return_signal = run_battle( # Gunakan victory_img_placeholder atau victory_img yang sesuai
+    return_signal = run_battle(
         SCREEN_WIDTH, SCREEN_HEIGHT, screen,
         draw_bg_story_cb, font_small, font_med, font_large,
         draw_health_bar_story_cb, draw_text_for_battle_cb,
         player, opponent_instance,
-        victory_img_placeholder, is_story=True # victory_img tidak akan ditampilkan oleh start_battle jika is_story
+        victory_img_placeholder, is_story=True
     )
-    return return_signal # Ini akan True jika pemain keluar ke main menu dari pause screen battle
+    return return_signal
 
 def main_story(start_new_game_flag=False):
-    global player_fighter_story, active_bg_surface, bg_image_default_scaled
+    global player_fighter_story, active_bg_surface, bg_image_default_scaled, current_music_file # <<< ADDED global declaration
 
     game_state = load_game_state()
     if start_new_game_flag: game_state = reset_story_progress()
-    
+
     current_chapter_num = game_state.get("current_chapter", 1)
     active_bg_surface = bg_image_default_scaled # Set default awal
 
     if game_state.get("story_completed", False) and not start_new_game_flag:
-        draw_bg_story_cb() 
+        draw_bg_story_cb()
         if not _play_dialogue_sequence_enhanced(draw_bg_story_cb, [{"speaker": "narrator", "lines": "You have already completed the story. Select 'New Story' to play again, or ESC to return to menu."}]):
-            return True # Kembali ke menu utama
-        return True # Kembali ke menu utama
+            return True
+        return True
 
     running_story_mode = True
     while running_story_mode and current_chapter_num <= MAX_CHAPTERS:
         chapter_data = lore_chapters_data.get(current_chapter_num)
-        if not chapter_data: 
+        if not chapter_data:
             print(f"Error: Chapter {current_chapter_num} data missing.")
             active_bg_surface = bg_image_default_scaled; break
-        
+
         chapter_bg_path = chapter_data.get("background_image_path")
         if chapter_bg_path:
             try:
@@ -293,64 +304,62 @@ def main_story(start_new_game_flag=False):
         opponent = story_opponents.get(chapter_data["opponent_id"])
         if not opponent: print(f"Error: Opponent for Chapter {current_chapter_num} missing."); break
 
-        draw_bg_story_cb() # Gambar background sebelum dialog intro
-        if not _play_dialogue_sequence_enhanced(draw_bg_story_cb, chapter_data["dialogue_sequence"]): return True # Kembali ke menu
+        draw_bg_story_cb()
+        if not _play_dialogue_sequence_enhanced(draw_bg_story_cb, chapter_data["dialogue_sequence"]): return True
 
         exit_to_main_menu_from_battle = start_story_battle_flow(player_fighter_story, opponent)
-        if exit_to_main_menu_from_battle: return True # Kembali ke menu jika user pilih dari pause
+        if exit_to_main_menu_from_battle: return True
 
-        # --- Tampilkan Pesan Victory/Defeat ---
         if player_fighter_story.alive:
-            show_battle_outcome_message("VICTORY!", 2500) # Tampilkan selama 2.5 detik
+            show_battle_outcome_message("VICTORY!", 2500)
         else:
-            show_battle_outcome_message("DEFEAT!", 2500) # Tampilkan selama 2.5 detik
-        # --- Akhir Pesan Victory/Defeat ---
+            show_battle_outcome_message("DEFEAT!", 2500)
 
         outro_dialogue_key = "outro_win" if player_fighter_story.alive else "outro_lose"
-        draw_bg_story_cb() # Gambar background lagi sebelum dialog outro
-        if not _play_dialogue_sequence_enhanced(draw_bg_story_cb, chapter_data[outro_dialogue_key]): return True # Kembali ke menu
+        draw_bg_story_cb()
+        if not _play_dialogue_sequence_enhanced(draw_bg_story_cb, chapter_data[outro_dialogue_key]): return True
 
-        if player_fighter_story.alive: 
+        if player_fighter_story.alive:
             if current_chapter_num == 4: # Chapter terakhir
                 if not game_state.get("monk_unlocked", False): game_state["monk_unlocked"] = True
                 game_state["story_completed"] = True
-                game_state["current_chapter"] = MAX_CHAPTERS + 1 # Tandai selesai
+                game_state["current_chapter"] = MAX_CHAPTERS + 1
                 save_game_state(game_state)
-                running_story_mode = False; break # Keluar dari loop story
-            
-            current_chapter_num += 1 # Lanjut ke chapter berikutnya
+                running_story_mode = False; break
+
+            current_chapter_num += 1
             game_state["current_chapter"] = current_chapter_num
             save_game_state(game_state)
-        else: 
-            pass 
+        else:
+            # Player lost, break the loop to show final message and return to menu
+            running_story_mode = False
 
 
     final_message = []
     if game_state.get("story_completed", False):
         final_message = [{"speaker": "narrator", "lines": "Congratulations! You have triumphed and completed the story of The Chosen! Press any key to return to the main menu."}]
-    # Jika keluar dari loop karena kalah di chapter terakhir sebelum "story_completed" jadi True, atau error lain.
-    elif not running_story_mode and not game_state.get("story_completed", False): 
-         # Pesan ini bisa disesuaikan jika pemain kalah di chapter terakhir dan belum complete
-        if not player_fighter_story.alive and current_chapter_num == MAX_CHAPTERS :
-             final_message = [{"speaker": "narrator", "lines": "The final battle was too much... Your journey ends here for now. Return to try again!"}]
-        elif not game_state.get("story_completed", False) : # Kondisi umum jika tidak selesai
-             final_message = [{"speaker": "narrator", "lines": "Your journey pauses here. Press any key to return to the main menu."}]
+    elif not player_fighter_story.alive : # If loop ended due to loss
+        final_message = [{"speaker": "narrator", "lines": "Your journey pauses here due to defeat. Press any key to return to the main menu."}]
+    else: # Other cases (e.g., ESC or error)
+        final_message = [{"speaker": "narrator", "lines": "Your journey pauses here. Press any key to return to the main menu."}]
 
 
     if final_message:
-        draw_bg_story_cb() # Gunakan background terakhir yang aktif
+        draw_bg_story_cb()
         _play_dialogue_sequence_enhanced(draw_bg_story_cb, final_message)
 
-    if pygame.mixer.music.get_busy(): # Hanya stop musik dialog
+    # --- MODIFIED: Use state variable to check music ---
+    if pygame.mixer.music.get_busy() and current_music_file == dialogue_music_path: # Hanya stop musik dialog
         pygame.mixer.music.stop()
-    running_story_mode = False
+        current_music_file = None # <<< CLEAR State
+    # --- END MODIFIED ---
+    return True # Selalu kembali ke menu utama
 
 if __name__ == "__main__":
-    SAVE_FILE_NAME = "savegame.json"
+    SAVE_FILE_NAME = "game_save_data.json" # Match main.py
     if not os.path.exists(SAVE_FILE_NAME):
-       print(f"'{SAVE_FILE_NAME}' not found. Creating default save state for testing story.py.")
-       save_game_state(DEFAULT_GAME_STATE.copy())
-
-    main_story(start_new_game_flag=True) # Atau False untuk melanjutkan
+        print(f"'{SAVE_FILE_NAME}' not found. Creating default save state for testing story.py.")
+        save_game_state(DEFAULT_GAME_STATE.copy())
+    main_story(start_new_game_flag=True)
     pygame.quit()
     exit()
