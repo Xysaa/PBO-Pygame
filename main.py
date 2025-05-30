@@ -18,7 +18,7 @@ mixer.init()
 pygame.init()
 
 # --- Story Submenu Function (Halaman baru dengan tombol baru) ---
-def show_story_submenu(screen, main_bg_image, clock):
+def show_story_submenu(screen, clock):
     screen_width = screen.get_width()
     screen_height = screen.get_height()
 
@@ -79,10 +79,7 @@ def show_story_submenu(screen, main_bg_image, clock):
                         elif action == "back":
                             submenu_running = False
         
-        screen.blit(pygame.transform.scale(main_bg_image, screen.get_size()), (0, 0))
-        overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 150)) # Overlay gelap transparan
-        screen.blit(overlay, (0,0))
+        screen.fill((0,0,0))
 
         submenu_title_text = submenu_font.render("Story Options", True, (255,255,150))
         screen.blit(submenu_title_text, (screen_width // 2 - submenu_title_text.get_width() // 2, screen_height // 2 - 160))
@@ -175,7 +172,7 @@ def main_menu():
                         should_restart_music_after_action = True
 
                         if action == "story_submenu":
-                            show_story_submenu(screen, background_image, clock)
+                            show_story_submenu(screen, clock)
                             # Setelah submenu kembali, pastikan musik menu utama berlanjut jika perlu
                             if not pygame.mixer.music.get_busy():
                                 pygame.mixer.music.load("assets/audio/music_main.wav")
@@ -183,8 +180,8 @@ def main_menu():
                             should_restart_music_after_action = False
 
                         elif action == "free_battle":
-                            pygame.mixer.music.stop()
-                            freebattle.start_battle()
+                            # pygame.mixer.music.stop()
+                            freebattle.initiate_free_battle_sequence(screen, screen_width, screen_height, clock)
                         elif action == "credits":
                             pygame.mixer.music.stop()
                             credit.run_credit()
