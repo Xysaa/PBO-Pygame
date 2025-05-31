@@ -1,30 +1,51 @@
 # main.py
 import pygame
-import story # story.py
+import story
 import freebattle
 import credit
 from pygame import mixer
-from save_data import load_game_state, DEFAULT_GAME_STATE 
-
-
+from save_data import load_game_state, DEFAULT_GAME_STATE #
 import os
-from save_data import save_game_state as init_save_main 
-SAVE_FILE_NAME = "game_save_data.json" 
+
+# Gamepad Button Constants (adjust if your gamepad has different mappings)
+JUMP_BUTTON = 0      # Typically X on PS-style, A on Xbox-style
+ATTACK1_BUTTON = 2   # Typically Square on PS-style, X on Xbox-style
+ATTACK2_BUTTON = 1   # Typically Circle on PS-style, B on Xbox-style
+ATTACK3_BUTTON = 3   # Typically Triangle on PS-style, Y on Xbox-style
+PAUSE_RESUME_BUTTON = 7 # Typically Start button
+# For menus, JUMP_BUTTON can often double as a "confirm" button
+MENU_CONFIRM_BUTTON = JUMP_BUTTON
+MENU_BACK_BUTTON = ATTACK2_BUTTON # e.g., Circle or B for "back"
+
+SAVE_FILE_NAME = "game_save_data.json"
 if not os.path.exists(SAVE_FILE_NAME):
-    init_save_main(DEFAULT_GAME_STATE.copy())
+    from save_data import save_game_state as init_save_main #
+    init_save_main(DEFAULT_GAME_STATE.copy()) #
     print(f"Initialized {SAVE_FILE_NAME} from main.py")
 
 mixer.init()
 pygame.init()
+pygame.joystick.init() # Initialize the joystick module
 
-# --- Story Submenu Function (Halaman baru dengan tombol baru) ---
-def show_story_submenu(screen, clock):
+joysticks = []
+for i in range(pygame.joystick.get_count()):
+    joystick = pygame.joystick.Joystick(i)
+    joystick.init()
+    joysticks.append(joystick)
+    print(f"Initialized Joystick {i}: {joystick.get_name()}")
+
+if not joysticks:
+    print("No joysticks detected.")
+
+# Define colors that might be used for fill
+BLACK = (0, 0, 0)
+
+# --- Story Submenu Function ---
+def show_story_submenu(screen, clock): # Removed main_bg_image
     screen_width = screen.get_width()
     screen_height = screen.get_height()
-
-    # Gunakan font yang sama atau berbeda untuk submenu jika diinginkan
-    submenu_font = pygame.font.Font("assets/fonts/turok.ttf", 28) # Font untuk tombol submenu
-
+    submenu_font = pygame.font.Font("assets/fonts/turok.ttf", 28)
+    # ... (button properties remain the same) ...
     button_text_color = (255, 255, 255)
     button_bg_color = (70, 70, 70)
     button_hover_color = (100, 100, 100)
@@ -32,59 +53,91 @@ def show_story_submenu(screen, clock):
     button_disabled_text_color = (100, 100, 100)
 
     submenu_button_properties = [
-        {"text": "NEW STORY", "action": "new_story", "y_pos": screen_height // 2 - 70},
-        {"text": "CONTINUE STORY", "action": "continue_story", "y_pos": screen_height // 2 - 10},
-        {"text": "BACK", "action": "back", "y_pos": screen_height // 2 + 50},
+        {"text": "NEW STORY", "action": "new_story", "y_pos": screen_height // 2 - 70, "id": 0},
+        {"text": "CONTINUE STORY", "action": "continue_story", "y_pos": screen_height // 2 - 10, "id": 1},
+        {"text": "BACK", "action": "back", "y_pos": screen_height // 2 + 50, "id": 2},
     ]
-
     submenu_buttons = []
-    button_width = 380 # Lebar tombol submenu
-    button_height = 50  # Tinggi tombol submenu
+    button_width = 380 
+    button_height = 50  
     for prop in submenu_button_properties:
         rect = pygame.Rect(screen_width // 2 - button_width // 2, prop["y_pos"], button_width, button_height)
         submenu_buttons.append({
-            "rect": rect, "text": prop["text"], "action": prop["action"],
+            "rect": rect, "text": prop["text"], "action": prop["action"], "id": prop["id"],
             "surface": submenu_font.render(prop["text"], True, button_text_color),
             "disabled_surface": submenu_font.render(prop["text"], True, button_disabled_text_color)
         })
+    
+    selected_button_idx = 0 # For D-pad navigation
 
     submenu_running = True
     while submenu_running:
         mouse_pos = pygame.mouse.get_pos()
-        game_state_current = load_game_state()
+        game_state_current = load_game_state() #
+        can_continue_story = not game_state_current["story_completed"] #
 
-        can_continue_story = not game_state_current["story_completed"]
+        # Update selected_button_idx based on mouse hover for visual consistency
+        for i, button in enumerate(submenu_buttons):
+            if button["rect"].collidepoint(mouse_pos):
+                selected_button_idx = i
+                break
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+            
+            action_to_perform = None
+
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                for button in submenu_buttons:
+                for i, button in enumerate(submenu_buttons):
                     if button["rect"].collidepoint(mouse_pos):
-                        action = button["action"]
+                        selected_button_idx = i # Ensure correct button is selected on click
+                        action_to_perform = button["action"]
+                        break
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    submenu_running = False
+                if event.key == pygame.K_UP:
+                    selected_button_idx = (selected_button_idx - 1 + len(submenu_buttons)) % len(submenu_buttons)
+                if event.key == pygame.K_DOWN:
+                    selected_button_idx = (selected_button_idx + 1) % len(submenu_buttons)
+                if event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                    action_to_perform = submenu_buttons[selected_button_idx]["action"]
 
-                        if action == "continue_story" and not can_continue_story:
-                            print("'Continue Story' disabled: Story is completed.")
-                            continue
+            if event.type == pygame.JOYHATMOTION:
+                if event.value[1] == -1: # D-pad Down
+                    selected_button_idx = (selected_button_idx + 1) % len(submenu_buttons)
+                elif event.value[1] == 1: # D-pad Up
+                    selected_button_idx = (selected_button_idx - 1 + len(submenu_buttons)) % len(submenu_buttons)
+            
+            if event.type == pygame.JOYBUTTONDOWN:
+                if event.button == MENU_CONFIRM_BUTTON: # X or A
+                     action_to_perform = submenu_buttons[selected_button_idx]["action"]
+                elif event.button == MENU_BACK_BUTTON: # Circle or B
+                    submenu_running = False
 
-                        if action == "new_story":
-                            pygame.mixer.music.stop()
-                            story.main_story(start_new_game_flag=True)
-                            return # Kembali ke loop main_menu
-                        elif action == "continue_story":
-                            pygame.mixer.music.stop()
-                            story.main_story(start_new_game_flag=False)
-                            return # Kembali ke loop main_menu
-                        elif action == "back":
-                            submenu_running = False
+
+            if action_to_perform:
+                button_data = submenu_buttons[selected_button_idx]
+                if action_to_perform == "continue_story" and not can_continue_story:
+                    print("'Continue Story' disabled: Story is completed.")
+                    continue
+                if action_to_perform == "new_story":
+                    story.main_story(start_new_game_flag=True) #
+                    return 
+                elif action_to_perform == "continue_story":
+                    story.main_story(start_new_game_flag=False) #
+                    return 
+                elif action_to_perform == "back":
+                    submenu_running = False
         
-        screen.fill((0,0,0))
-
+        screen.fill(BLACK) 
         submenu_title_text = submenu_font.render("Story Options", True, (255,255,150))
         screen.blit(submenu_title_text, (screen_width // 2 - submenu_title_text.get_width() // 2, screen_height // 2 - 160))
 
-        for button in submenu_buttons:
+        for i, button in enumerate(submenu_buttons):
             current_bg_color = button_bg_color
             current_text_surface = button["surface"]
             is_disabled = button["action"] == "continue_story" and not can_continue_story
@@ -92,7 +145,8 @@ def show_story_submenu(screen, clock):
             if is_disabled:
                 current_bg_color = button_disabled_color
                 current_text_surface = button["disabled_surface"]
-            elif button["rect"].collidepoint(mouse_pos):
+            # Highlight if selected by D-pad/arrow OR hovered by mouse
+            elif i == selected_button_idx: 
                 current_bg_color = button_hover_color
             
             pygame.draw.rect(screen, current_bg_color, button["rect"])
@@ -102,105 +156,125 @@ def show_story_submenu(screen, clock):
             ))
         pygame.display.flip()
         clock.tick(60)
-    # Keluar dari loop submenu_running, kembali ke main_menu
 
-# --- Main Menu Function (Menggunakan struktur tombol asli Anda) ---
+# --- Main Menu Function ---
 def main_menu():
     screen_width = 1000
     screen_height = 600
-    screen = pygame.display.set_mode((screen_width, screen_height)) # Hapus RESIZABLE jika tidak diimplementasikan penuh
+    screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("The Chosen - Main Menu")
     clock = pygame.time.Clock()
 
     try:
-        pygame.mixer.music.load("assets/audio/music_main.wav")
-        pygame.mixer.music.set_volume(0.7)
-        pygame.mixer.music.play(-1, 0.0, 5000)
+        pygame.mixer.music.load("assets/audio/music_main.wav") #
+        pygame.mixer.music.set_volume(0.7) #
+        pygame.mixer.music.play(-1, 0.0, 5000) #
     except pygame.error as e: print(f"Error loading main menu music: {e}")
 
     try:
-        background_image = pygame.image.load("assets/images/background/background_main_menu.jpeg").convert()
+        background_image = pygame.image.load("assets/images/background/background_main_menu.jpeg").convert() #
     except pygame.error as e:
         print(f"Error loading background image: {e}")
         background_image = pygame.Surface((screen_width, screen_height)); background_image.fill((50,50,50))
     
-    # Font untuk tombol menu utama (sesuaikan dengan font asli Anda jika berbeda)
-    # Dari file asli Anda, sepertinya tidak ada font yang didefinisikan secara eksplisit untuk tombol
-    # jadi kita akan gunakan font default atau font yang sama dengan submenu untuk konsistensi visual
-    # Jika Anda punya font spesifik dari "assets/fonts/turok.ttf" untuk ini, gunakan itu.
-        # Menggunakan definisi tombol dari file main.py asli Anda
     button_data_original = [
-        {"text": "LORE OF THE CHOSEN", "x": 258.75, "y": 305, "width": 393.75, "height": 40, "action": "story_submenu"}, # Action diubah ke submenu
-        {"text": "FREE BATTLE", "x": 258.75, "y": 375, "width": 393.75, "height": 40, "action": "free_battle"},
-        {"text": "CREDITS", "x": 258.75, "y": 445, "width": 393.75, "height": 40, "action": "credits"},
-        {"text": "EXIT", "x": 258.75, "y": 515, "width": 393.75, "height": 40, "action": "exit"}
+        {"text": "LORE OF THE CHOSEN", "x": 258.75, "y": 305, "width": 393.75, "height": 40, "action": "story_submenu", "id": 0}, #
+        {"text": "FREE BATTLE", "x": 258.75, "y": 375, "width": 393.75, "height": 40, "action": "free_battle", "id": 1}, #
+        {"text": "CREDITS", "x": 258.75, "y": 445, "width": 393.75, "height": 40, "action": "credits", "id": 2}, #
+        {"text": "EXIT", "x": 258.75, "y": 515, "width": 393.75, "height": 40, "action": "exit", "id": 3} #
     ]
     
     main_buttons = []
     for data in button_data_original:
         rect = pygame.Rect(data["x"], data["y"], data["width"], data["height"])
         main_buttons.append({
-            "rect": rect,
-            "text": data["text"], # Simpan teks untuk dirender
-            "action": data["action"],
-           # Pre-render surface
+            "rect": rect, "text": data["text"], "action": data["action"], "id": data["id"]
         })
+    
+    selected_button_idx = 0 # For D-pad/keyboard navigation
 
     running = True
     while running:
         mouse_pos = pygame.mouse.get_pos()
-        # Resizable window logic (jika Anda ingin mempertahankannya dari file asli)
-        # current_screen_width, current_screen_height = screen.get_size()
-        # scale_x = current_screen_width / screen_width # screen_width adalah lebar awal
-        # scale_y = current_screen_height / screen_height
+
+        # Update selected_button_idx based on mouse hover
+        for i, button in enumerate(main_buttons):
+            if button["rect"].collidepoint(mouse_pos):
+                selected_button_idx = i
+                break
+        
+        action_to_perform = None
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: running = False
-            # if event.type == pygame.VIDEORESIZE: # Jika menggunakan mode resizable
-            #     # Update screen dan skala ulang tombol jika diperlukan (logika ini kompleks)
-            #     # Untuk saat ini, kita asumsikan ukuran tetap atau logika resize sudah ada
-            #     pass
-
+            
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                # Skala mouse_pos jika layar resizable dan tombol tidak diskala ulang setiap frame
-                # scaled_mouse_pos = (mouse_pos[0] / scale_x, mouse_pos[1] / scale_y) # Contoh
-                for button in main_buttons:
-                    # Gunakan button.rect yang mungkin sudah disesuaikan jika resizable
-                    # atau mouse_pos yang diskalakan
-                    if button["rect"].collidepoint(mouse_pos): # Gunakan mouse_pos langsung jika tombol tidak diskala
-                        action = button["action"]
-                        should_restart_music_after_action = True
+                for i, button in enumerate(main_buttons):
+                    if button["rect"].collidepoint(mouse_pos):
+                        selected_button_idx = i
+                        action_to_perform = button["action"]
+                        break
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE: running = False # Exit game on ESC from main menu
+                if event.key == pygame.K_UP:
+                    selected_button_idx = (selected_button_idx - 1 + len(main_buttons)) % len(main_buttons)
+                if event.key == pygame.K_DOWN:
+                    selected_button_idx = (selected_button_idx + 1) % len(main_buttons)
+                if event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                    action_to_perform = main_buttons[selected_button_idx]["action"]
 
-                        if action == "story_submenu":
-                            show_story_submenu(screen, clock)
-                            # Setelah submenu kembali, pastikan musik menu utama berlanjut jika perlu
-                            if not pygame.mixer.music.get_busy():
-                                pygame.mixer.music.load("assets/audio/music_main.wav")
-                                pygame.mixer.music.play(-1, 0.0, 5000)
-                            should_restart_music_after_action = False
+            if event.type == pygame.JOYHATMOTION: # D-pad navigation
+                 if event.value[1] == -1: # Down
+                    selected_button_idx = (selected_button_idx + 1) % len(main_buttons)
+                 elif event.value[1] == 1: # Up
+                    selected_button_idx = (selected_button_idx - 1 + len(main_buttons)) % len(main_buttons)
 
-                        elif action == "free_battle":
-                            # pygame.mixer.music.stop()
-                            freebattle.initiate_free_battle_sequence(screen, screen_width, screen_height, clock)
-                        elif action == "credits":
-                            pygame.mixer.music.stop()
-                            credit.run_credit()
-                        elif action == "exit":
-                            running = False; should_restart_music_after_action = False
-                        
-                        if should_restart_music_after_action and running:
-                            try:
-                                pygame.mixer.music.load("assets/audio/music_main.wav")
-                                pygame.mixer.music.play(-1, 0.0, 5000)
-                            except pygame.error as e: print(f"Error restarting menu music: {e}")
-        
-        # Menggambar background
-        # Jika resizable, scaled_background harus menggunakan ukuran layar saat ini
+            if event.type == pygame.JOYBUTTONDOWN:
+                if event.button == MENU_CONFIRM_BUTTON: # X or A button
+                    action_to_perform = main_buttons[selected_button_idx]["action"]
+                # No specific MENU_BACK_BUTTON on main menu, ESC or gamepad Start usually quits/opens system menu
+
+            if action_to_perform:
+                if action_to_perform == "story_submenu":
+                    show_story_submenu(screen, clock)
+                    if not pygame.mixer.music.get_busy(): # If music stopped
+                        try:
+                            pygame.mixer.music.load("assets/audio/music_main.wav") #
+                            pygame.mixer.music.play(-1, 0.0, 5000) #
+                        except pygame.error as e: print(f"Error restarting menu music: {e}")
+                
+                elif action_to_perform == "free_battle":
+                    # Main menu music continues, freebattle.py handles stopping it later
+                    freebattle.initiate_free_battle_sequence(screen, screen_width, screen_height, clock, joysticks) # Pass joysticks
+                
+                elif action_to_perform == "credits":
+                    pygame.mixer.music.stop()
+                    credit.run_credit() #
+                    try: # Restart music after credits
+                        pygame.mixer.music.load("assets/audio/music_main.wav") #
+                        pygame.mixer.music.play(-1, 0.0, 5000) #
+                    except pygame.error as e: print(f"Error restarting menu music: {e}")
+
+                elif action_to_perform == "exit":
+                    running = False
+                
+                action_to_perform = None # Reset action
+
         current_screen_size = screen.get_size()
         screen.blit(pygame.transform.scale(background_image, current_screen_size), (0, 0))
 
-        # Menggambar tombol menu utama
-        # Asumsi fixed size atau rect sudah diupdate
+        # font_button = pygame.font.Font("assets/fonts/turok.ttf", 24) 
+        # for i, button in enumerate(main_buttons):
+        #     btn_color = (70, 70, 70)
+        #     text_color = (255,255,255)
+        #     if i == selected_button_idx: # Highlight if selected by D-pad/keyboard OR hovered by mouse
+        #         btn_color = (100,100,100) 
+        #
+        #     pygame.draw.rect(screen, btn_color, button["rect"])
+        #     text_surf = font_button.render(button["text"], True, text_color)
+        #     text_rect = text_surf.get_rect(center=button["rect"].center)
+        #     screen.blit(text_surf, text_rect)
 
         pygame.display.flip()
         clock.tick(60)
